@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Gasoek+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@900&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -10,5 +10,6 @@ html, body {
 }
 
 .title-display {
-  font-family: "Gasoek One", sans-serif;
+  font-family: "Noto Sans SC", sans-serif;
+  font-weight: 900;
 }

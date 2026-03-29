@@ -1,46 +1,51 @@
 import {useEffect, useState} from "react";
-import {createPuzzle, submitGuess, type FeedbackColor, type Puzzle} from "../game";
+import {createPuzzle, type GuessFeedbackStatus, MAX_GUESSES, type Puzzle, submitGuess} from "../game";
 
 const GUESS_LENGTH = 4;
 
-const feedbackColorClasses: Record<FeedbackColor, string> = {
-  green: "border-transparent bg-green-500 text-white",
-  orange: "border-transparent bg-yellow-500 text-white",
-  red: "border-transparent bg-zinc-700 text-zinc-100",
+const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
+  correct: "border-transparent bg-green-500 text-white",
+  present: "border-transparent bg-yellow-500 text-white",
+  absent: "border-transparent bg-zinc-700 text-zinc-100",
 };
 
 const poolColorClasses = {
   default: "border-transparent bg-zinc-800 text-zinc-100 hover:bg-zinc-700",
-  green: "border-transparent bg-green-500 text-white hover:bg-green-500",
-  orange: "border-transparent bg-yellow-500 text-white hover:bg-yellow-500",
-  red: "border-transparent bg-zinc-700 text-zinc-700 hover:bg-zinc-700",
+  absent: "border-transparent bg-zinc-700 text-zinc-700",
   selected:
     "border-zinc-500 bg-transparent text-zinc-100 hover:bg-transparent",
 } as const;
+
+const guessTileBaseClasses = "h-[3rem] w-[3rem] flex items-center justify-center rounded-xl border text-2xl font-semibold";
+const guessTileFilledClasses = "border-zinc-700 bg-zinc-900 text-zinc-100";
+const guessTileEmptyClasses = "border-zinc-700 bg-zinc-900 text-zinc-600";
+const guessTilePlaceholderClasses = "border-zinc-800 bg-zinc-950/70 text-zinc-700";
+const poolTileBaseClasses = "h-[2.5rem] w-[2.5rem] flex items-center justify-center rounded-xl border text-lg font-semibold transition-colors";
+const submitButtonBaseClasses = "h-[2.5rem] w-[2.5rem] flex items-center justify-center rounded-xl border text-lg transition-colors";
 
 function buildGuessSlots(currentGuess: string[]) {
   return Array.from({length: GUESS_LENGTH}, (_, index) => currentGuess[index] ?? null);
 }
 
 function getPoolFeedbackMap(puzzle: Puzzle) {
-  const feedbackByCharacter = new Map<string, FeedbackColor>();
+  const feedbackByCharacter = new Map<string, GuessFeedbackStatus>();
 
   for (const guess of puzzle.guesses) {
     for (const slot of guess.feedback) {
       const current = feedbackByCharacter.get(slot.character);
 
-      if (slot.color === "green") {
-        feedbackByCharacter.set(slot.character, "green");
+      if (slot.status === "correct") {
+        feedbackByCharacter.set(slot.character, "correct");
         continue;
       }
 
-      if (slot.color === "orange" && current !== "green") {
-        feedbackByCharacter.set(slot.character, "orange");
+      if (slot.status === "present" && current !== "correct") {
+        feedbackByCharacter.set(slot.character, "present");
         continue;
       }
 
       if (!current) {
-        feedbackByCharacter.set(slot.character, "red");
+        feedbackByCharacter.set(slot.character, "absent");
       }
     }
   }
@@ -115,9 +120,11 @@ export default function HomePage() {
   }
 
   const guessSlots = buildGuessSlots(currentGuess);
-  const isSubmitDisabled = currentGuess.length !== GUESS_LENGTH || puzzle.isSolved;
+  const isGameOver = puzzle.isSolved || puzzle.isFailed;
+  const isSubmitDisabled = currentGuess.length !== GUESS_LENGTH || isGameOver;
   const history = puzzle.guesses;
   const poolFeedbackMap = getPoolFeedbackMap(puzzle);
+  const activeRowIndex = isGameOver ? -1 : history.length;
 
   return (
     <main className="px-4 py-8 sm:px-6 sm:py-10">
@@ -128,62 +135,69 @@ export default function HomePage() {
 
         <div className="mt-6 space-y-6">
           <section>
-            <ol className="space-y-2">
-              {history.map((guess) => (
-                <li key={guess.attemptNumber}>
-                  <div className="flex gap-2 sm:justify-center">
-                    {guess.feedback.map((slot) => (
-                      <div
-                        key={`${guess.attemptNumber}-${slot.index}`}
-                        className={[
-                          "flex h-11 w-11 items-center justify-center rounded-xl border text-lg font-semibold sm:h-[3.25rem] sm:w-[3.25rem] sm:text-xl",
-                          feedbackColorClasses[slot.color],
-                        ].join(" ")}
-                      >
-                        {slot.character}
-                      </div>
-                    ))}
-                  </div>
-                </li>
-              ))}
+            <ol className="space-y-1">
+              {Array.from({length: MAX_GUESSES}, (_, rowIndex) => {
+                const guess = history[rowIndex];
+                const isActiveRow = rowIndex === activeRowIndex;
 
-              {!puzzle.isSolved ? (
-                <li>
-                  <div className="flex gap-2 sm:justify-center">
-                    {guessSlots.map((character, index) => (
-                      <button
-                        key={`guess-slot-${index}`}
-                        type="button"
-                        onClick={() => handleRemoveCharacter(index)}
-                        disabled={!character || puzzle.isSolved}
-                        className={[
-                          "flex h-11 w-11 items-center justify-center rounded-xl border text-lg font-semibold transition-colors sm:h-[3.25rem] sm:w-[3.25rem] sm:text-xl",
-                          character
-                            ? "border border-zinc-700 bg-zinc-900 text-zinc-100"
-                            : "border border-zinc-700 bg-zinc-900 text-zinc-600",
-                          !character || puzzle.isSolved ? "disabled:cursor-default" : "",
-                        ].join(" ")}
-                      >
-                        {character ?? ""}
-                      </button>
-                    ))}
-                  </div>
-                </li>
-              ) : null}
+                return (
+                  <li key={`attempt-row-${rowIndex + 1}`}>
+                    <div className="flex gap-1.25 justify-center">
+                      {guess ? (
+                        guess.feedback.map((slot) => (
+                          <div
+                            key={`${guess.attemptNumber}-${slot.index}`}
+                            className={[
+                              guessTileBaseClasses,
+                              feedbackStatusClasses[slot.status],
+                            ].join(" ")}
+                          >
+                            {slot.character}
+                          </div>
+                        ))
+                      ) : isActiveRow ? (
+                        guessSlots.map((character, index) => (
+                          <button
+                            key={`guess-slot-${rowIndex}-${index}`}
+                            type="button"
+                            onClick={() => handleRemoveCharacter(index)}
+                            disabled={!character || isGameOver}
+                            className={[
+                              guessTileBaseClasses,
+                              "transition-colors",
+                              character ? guessTileFilledClasses : guessTileEmptyClasses,
+                              !character || isGameOver ? "disabled:cursor-default" : "",
+                            ].join(" ")}
+                          >
+                            {character ?? ""}
+                          </button>
+                        ))
+                      ) : (
+                        Array.from({length: GUESS_LENGTH}, (_, index) => (
+                          <div
+                            key={`placeholder-slot-${rowIndex}-${index}`}
+                            className={[guessTileBaseClasses, guessTilePlaceholderClasses].join(" ")}
+                          />
+                        ))
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           </section>
 
           <section>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            <div className="flex flex-wrap justify-center gap-2">
               {puzzle.pool.map((character) => {
                 const isSelected = currentGuess.includes(character);
-                const feedbackColor = poolFeedbackMap.get(character);
-                const isAbsent = feedbackColor === "red";
+                const feedbackStatus = poolFeedbackMap.get(character);
+                const isAbsent = feedbackStatus === "absent";
                 const isDisabled =
                   isSelected ||
                   isAbsent ||
                   currentGuess.length >= GUESS_LENGTH ||
-                  puzzle.isSolved;
+                  isGameOver;
 
                 return (
                   <button
@@ -192,11 +206,13 @@ export default function HomePage() {
                     onClick={() => handleSelectCharacter(character)}
                     disabled={isDisabled}
                     className={[
-                      "flex h-10 w-10 items-center justify-center rounded-xl border text-lg font-semibold transition-colors sm:h-11 sm:w-11 sm:text-xl",
+                      poolTileBaseClasses,
                       isSelected
                         ? poolColorClasses.selected
-                        : feedbackColor
-                          ? poolColorClasses[feedbackColor]
+                        : feedbackStatus
+                          ? feedbackStatus === "absent"
+                            ? poolColorClasses.absent
+                            : feedbackStatusClasses[feedbackStatus]
                           : poolColorClasses.default,
                       isDisabled ? "disabled:cursor-not-allowed" : "",
                     ].join(" ")}
@@ -212,7 +228,7 @@ export default function HomePage() {
                 disabled={isSubmitDisabled}
                 aria-label="Submit guess"
                 className={[
-                  "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors sm:h-11 sm:w-11",
+                  submitButtonBaseClasses,
                   isSubmitDisabled
                     ? "border-transparent bg-zinc-800 text-zinc-500"
                     : "border-transparent bg-zinc-100 text-zinc-950 hover:bg-white",

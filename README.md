@@ -239,3 +239,53 @@ Examples:
 - refactor: simplify game state handling
 - Keep commits small and focused
 - One logical change per commit
+
+---
+
+## Setup & Deployment
+
+### Prerequisites
+
+- Node.js 20+
+- `pnpm`
+- A Cloudflare account with Wrangler authenticated
+
+### Install
+
+```bash
+pnpm install
+```
+
+### Run Locally
+
+```bash
+pnpm dev
+```
+
+The app will start in local development mode and serve the homepage at `/`.
+
+### Build
+
+```bash
+pnpm build
+```
+
+### Preview Cloudflare Worker Locally
+
+```bash
+pnpm preview
+```
+
+This uses Wrangler to serve the built app with the Cloudflare Workers configuration.
+
+### Deploy
+
+```bash
+pnpm deploy
+```
+
+If this is your first deployment, authenticate Wrangler first:
+
+```bash
+pnpm dlx wrangler login
+```

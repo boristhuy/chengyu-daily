@@ -130,7 +130,7 @@ export default function HomePage() {
     <main className="px-4 py-8 sm:px-6 sm:py-10">
       <section className="mx-auto w-full max-w-2xl">
         <h1 className="title-display text-3xl text-center uppercase tracking-[0.04em] text-zinc-50 sm:text-5xl">
-          Chengle
+          成语乐
         </h1>
 
         <div className="mt-6 space-y-6">

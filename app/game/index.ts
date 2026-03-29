@@ -1,8 +1,8 @@
 export { CHENGYU_DATASET } from "./data";
-export { createPuzzle, getFeedback, submitGuess } from "./logic";
+export { createPuzzle, getFeedback, MAX_GUESSES, submitGuess } from "./logic";
 export type {
   Chengyu,
-  FeedbackColor,
+  GuessFeedbackStatus,
   GuessFeedback,
   GuessResult,
   Puzzle,

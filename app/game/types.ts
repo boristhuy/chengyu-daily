@@ -1,11 +1,11 @@
 export type Chengyu = string;
 
-export type FeedbackColor = "green" | "orange" | "red";
+export type GuessFeedbackStatus = "correct" | "present" | "absent";
 
 export interface GuessFeedback {
   character: string;
   index: number;
-  color: FeedbackColor;
+  status: GuessFeedbackStatus;
 }
 
 export interface GuessResult {
@@ -21,6 +21,7 @@ export interface Puzzle {
   attemptCount: number;
   guesses: GuessResult[];
   isSolved: boolean;
+  isFailed: boolean;
 }
 
 export interface SubmitGuessSuccess {

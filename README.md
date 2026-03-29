@@ -9,7 +9,7 @@ This is a fast, puzzle-based learning game inspired by games like *Loldle*.
 
 The player is given a small pool of Chinese characters and must reconstruct the correct 4-character chengyu using feedback from each attempt.
 
-The goal is to solve the puzzle in as few attempts as possible.
+The goal is to solve the puzzle within 6 attempts, ideally in as few attempts as possible.
 
 ---
 
@@ -24,9 +24,9 @@ The goal is to solve the puzzle in as few attempts as possible.
     - 🔴 Red: character not in the answer
 5. Increase attempt count by 1
 6. Clues are revealed automatically as the player makes guesses (do not increase attempt count)
-7. Repeat until the correct chengyu is found
+7. Repeat until the correct chengyu is found or all 6 guesses are used
 
-There is **no hard attempt limit**.
+There is a **hard limit of 6 guesses**.
 
 ---
 
@@ -57,6 +57,7 @@ Each puzzle contains:
 - Player selects 4 characters from the pool
 - Selection order matters
 - Each submitted guess increases `attemptCount` by 1
+- A puzzle allows a maximum of 6 submitted guesses
 
 ---
 
@@ -70,7 +71,13 @@ Each puzzle contains:
 
 ### Winning
 
-- The game is solved when the guess exactly matches the target chengyu
+- The game is solved when the guess exactly matches the target chengyu within 6 guesses
+
+---
+
+### Failure
+
+- The game fails when the player uses all 6 guesses without finding the target chengyu
 
 ---
 
@@ -90,11 +97,11 @@ Possible future extensions:
 
 ---
 
-## Why No Hard Attempt Limit
+## Why A 6-Guess Limit
 
 Chengyu are more challenging than typical word or trivia games.
 
-No hard limit ensures:
+The six-guess cap keeps the game concise while still leaving room to learn:
 - Less frustration
 - Better learning experience
 - Natural use of clues

@@ -10,6 +10,7 @@ import type {
 const TARGET_LENGTH = 4;
 const MIN_DISTRACTORS = 4;
 const MAX_DISTRACTORS = 6;
+export const MAX_GUESSES = 6;
 
 function splitCharacters(value: string): string[] {
   return Array.from(value);
@@ -62,7 +63,7 @@ function createGuessResult(
   return {
     guess,
     feedback,
-    isCorrect: feedback.every((slot) => slot.color === "green"),
+    isCorrect: feedback.every((slot) => slot.status === "correct"),
     attemptNumber,
   };
 }
@@ -76,6 +77,7 @@ export function createPuzzle(): Puzzle {
     attemptCount: 0,
     guesses: [],
     isSolved: false,
+    isFailed: false,
   };
 }
 
@@ -85,18 +87,25 @@ export function getFeedback(guess: string, target: Chengyu): GuessFeedback[] {
 
   return guessCharacters.map((character, index) => {
     if (targetCharacters[index] === character) {
-      return { character, index, color: "green" };
+      return { character, index, status: "correct" };
     }
 
     if (targetCharacters.includes(character)) {
-      return { character, index, color: "orange" };
+      return { character, index, status: "present" };
     }
 
-    return { character, index, color: "red" };
+    return { character, index, status: "absent" };
   });
 }
 
 export function submitGuess(puzzle: Puzzle, guess: string): SubmitGuessResult {
+  if (puzzle.isSolved || puzzle.isFailed || puzzle.attemptCount >= MAX_GUESSES) {
+    return {
+      ok: false,
+      error: "No more guesses are available.",
+    };
+  }
+
   const guessCharacters = splitCharacters(guess);
 
   if (guessCharacters.length !== TARGET_LENGTH) {
@@ -116,6 +125,8 @@ export function submitGuess(puzzle: Puzzle, guess: string): SubmitGuessResult {
   const feedback = getFeedback(guess, puzzle.target);
   const attemptCount = puzzle.attemptCount + 1;
   const result = createGuessResult(guess, feedback, attemptCount);
+  const isSolved = result.isCorrect;
+  const isFailed = !isSolved && attemptCount >= MAX_GUESSES;
 
   return {
     ok: true,
@@ -124,7 +135,8 @@ export function submitGuess(puzzle: Puzzle, guess: string): SubmitGuessResult {
       ...puzzle,
       attemptCount,
       guesses: [...puzzle.guesses, result],
-      isSolved: result.isCorrect,
+      isSolved,
+      isFailed,
     },
   };
 }

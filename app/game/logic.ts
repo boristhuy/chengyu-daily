@@ -1,6 +1,7 @@
 import { CHENGYU_DATASET } from "./data";
 import type {
   Chengyu,
+  ChengyuEntry,
   GuessFeedback,
   GuessResult,
   Puzzle,
@@ -35,11 +36,11 @@ function canBuildGuessFromPool(guessCharacters: string[], pool: string[]): boole
   return guessCharacters.every((character) => pool.includes(character));
 }
 
-function buildCharacterPool(target: Chengyu): string[] {
-  const targetCharacters = splitCharacters(target);
+function buildCharacterPool(target: ChengyuEntry): string[] {
+  const targetCharacters = splitCharacters(target.hanzi);
   const distractorCandidates = Array.from(
     new Set(
-      CHENGYU_DATASET.flatMap((chengyu) => splitCharacters(chengyu)).filter(
+      CHENGYU_DATASET.flatMap((chengyu) => splitCharacters(chengyu.hanzi)).filter(
         (character) => !targetCharacters.includes(character),
       ),
     ),
@@ -69,11 +70,12 @@ function createGuessResult(
 }
 
 export function createPuzzle(): Puzzle {
-  const target = CHENGYU_DATASET[randomInt(0, CHENGYU_DATASET.length - 1)];
+  const learning = CHENGYU_DATASET[randomInt(0, CHENGYU_DATASET.length - 1)];
 
   return {
-    target,
-    pool: buildCharacterPool(target),
+    target: learning.hanzi,
+    learning,
+    pool: buildCharacterPool(learning),
     attemptCount: 0,
     guesses: [],
     isSolved: false,

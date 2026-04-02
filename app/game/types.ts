@@ -1,5 +1,12 @@
 export type Chengyu = string;
 
+export interface ChengyuEntry {
+  hanzi: Chengyu;
+  pinyin: string;
+  meaning: string;
+  examples: string[];
+}
+
 export type GuessFeedbackStatus = "correct" | "present" | "absent";
 
 export interface GuessFeedback {
@@ -17,6 +24,7 @@ export interface GuessResult {
 
 export interface Puzzle {
   target: Chengyu;
+  learning: ChengyuEntry;
   pool: string[];
   attemptCount: number;
   guesses: GuessResult[];

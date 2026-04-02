@@ -1,30 +1,31 @@
-import {useEffect, useState} from "react";
-import {createPuzzle, type GuessFeedbackStatus, MAX_GUESSES, type Puzzle, submitGuess} from "../game";
+import { useEffect, useState } from "react";
+import { createPuzzle, type GuessFeedbackStatus, MAX_GUESSES, type Puzzle, submitGuess } from "../game";
 
 const GUESS_LENGTH = 4;
 
 const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
-  correct: "border-transparent bg-green-500 text-white",
-  present: "border-transparent bg-yellow-500 text-white",
+  correct: "border-transparent bg-emerald-400 text-white",
+  present: "border-transparent bg-amber-400 text-white",
   absent: "border-transparent bg-zinc-700 text-zinc-100",
 };
 
 const poolColorClasses = {
   default: "border-transparent bg-zinc-800 text-zinc-100 hover:bg-zinc-700",
   absent: "border-transparent bg-zinc-700 text-zinc-700",
-  selected:
-    "border-zinc-500 bg-transparent text-zinc-100 hover:bg-transparent",
+  selected: "border-zinc-500 bg-transparent text-zinc-100 hover:bg-transparent",
 } as const;
 
-const guessTileBaseClasses = "h-[3rem] w-[3rem] flex items-center justify-center rounded-xl border text-2xl font-semibold";
+const guessTileBaseClasses = "flex h-[3rem] w-[3rem] items-center justify-center rounded-xl border text-2xl font-semibold";
 const guessTileFilledClasses = "border-zinc-700 bg-zinc-900 text-zinc-100";
 const guessTileEmptyClasses = "border-zinc-700 bg-zinc-900 text-zinc-600";
 const guessTilePlaceholderClasses = "border-zinc-800 bg-zinc-950/70 text-zinc-700";
-const poolTileBaseClasses = "h-[2.5rem] w-[2.5rem] flex items-center justify-center rounded-xl border text-lg font-semibold transition-colors";
-const submitButtonBaseClasses = "h-[2.5rem] w-[2.5rem] flex items-center justify-center rounded-xl border text-lg transition-colors";
+const poolTileBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg font-semibold transition-colors";
+const submitButtonBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg transition-colors";
+const dialogPanelClasses = "w-full min-h-screen bg-zinc-950 px-5 py-8 sm:min-h-0 sm:max-w-md sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900 sm:px-7 sm:py-8";
+const DIALOG_TRANSITION_MS = 180;
 
 function buildGuessSlots(currentGuess: string[]) {
-  return Array.from({length: GUESS_LENGTH}, (_, index) => currentGuess[index] ?? null);
+  return Array.from({ length: GUESS_LENGTH }, (_, index) => currentGuess[index] ?? null);
 }
 
 function getPoolFeedbackMap(puzzle: Puzzle) {
@@ -53,17 +54,47 @@ function getPoolFeedbackMap(puzzle: Puzzle) {
   return feedbackByCharacter;
 }
 
+function buildPinyinSyllables(pinyin: string) {
+  return pinyin.split(/\s+/).filter(Boolean);
+}
+
 export default function HomePage() {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [currentGuess, setCurrentGuess] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isGameOverDialogOpen, setIsGameOverDialogOpen] = useState(false);
+  const [isGameOverDialogVisible, setIsGameOverDialogVisible] = useState(false);
 
   useEffect(() => {
     setPuzzle(createPuzzle());
   }, []);
 
+  useEffect(() => {
+    if (puzzle && (puzzle.isSolved || puzzle.isFailed)) {
+      setIsGameOverDialogOpen(true);
+    }
+  }, [puzzle]);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    if (isGameOverDialogOpen) {
+      timeoutId = setTimeout(() => {
+        setIsGameOverDialogVisible(true);
+      }, 10);
+    } else {
+      setIsGameOverDialogVisible(false);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isGameOverDialogOpen]);
+
   function handleSelectCharacter(character: string) {
-    if (!puzzle || puzzle.isSolved || currentGuess.length >= GUESS_LENGTH) {
+    if (!puzzle || puzzle.isSolved || puzzle.isFailed || currentGuess.length >= GUESS_LENGTH) {
       return;
     }
 
@@ -76,7 +107,7 @@ export default function HomePage() {
   }
 
   function handleRemoveCharacter(index: number) {
-    if (!puzzle || puzzle.isSolved) {
+    if (!puzzle || puzzle.isSolved || puzzle.isFailed) {
       return;
     }
 
@@ -85,7 +116,7 @@ export default function HomePage() {
   }
 
   function handleSubmitGuess() {
-    if (!puzzle || currentGuess.length !== GUESS_LENGTH || puzzle.isSolved) {
+    if (!puzzle || currentGuess.length !== GUESS_LENGTH || puzzle.isSolved || puzzle.isFailed) {
       return;
     }
 
@@ -125,24 +156,36 @@ export default function HomePage() {
   const history = puzzle.guesses;
   const poolFeedbackMap = getPoolFeedbackMap(puzzle);
   const activeRowIndex = isGameOver ? -1 : history.length;
+  const pinyinSyllables = buildPinyinSyllables(puzzle.learning.pinyin);
+  const resultTitle = puzzle.isSolved ? "Congratulations!" : "Not this time";
+  const resultRecap = puzzle.isSolved
+    ? "You got it"
+    : "The answer was";
+
+  function handleCloseGameOverDialog() {
+    setIsGameOverDialogVisible(false);
+    setTimeout(() => {
+      setIsGameOverDialogOpen(false);
+    }, DIALOG_TRANSITION_MS);
+  }
 
   return (
     <main className="px-4 py-8 sm:px-6 sm:py-10">
       <section className="mx-auto w-full max-w-2xl">
-        <h1 className="title-display text-3xl text-center uppercase tracking-[0.04em] text-zinc-50 sm:text-5xl">
+        <h1 className="title-display text-center text-3xl uppercase tracking-[0.04em] text-zinc-50 sm:text-5xl">
           成语乐
         </h1>
 
         <div className="mt-6 space-y-6">
           <section>
-            <ol className="space-y-1">
-              {Array.from({length: MAX_GUESSES}, (_, rowIndex) => {
+            <ol className="space-y-1.5">
+              {Array.from({ length: MAX_GUESSES }, (_, rowIndex) => {
                 const guess = history[rowIndex];
                 const isActiveRow = rowIndex === activeRowIndex;
 
                 return (
                   <li key={`attempt-row-${rowIndex + 1}`}>
-                    <div className="flex gap-1.25 justify-center">
+                    <div className="flex justify-center gap-1.5">
                       {guess ? (
                         guess.feedback.map((slot) => (
                           <div
@@ -173,7 +216,7 @@ export default function HomePage() {
                           </button>
                         ))
                       ) : (
-                        Array.from({length: GUESS_LENGTH}, (_, index) => (
+                        Array.from({ length: GUESS_LENGTH }, (_, index) => (
                           <div
                             key={`placeholder-slot-${rowIndex}-${index}`}
                             className={[guessTileBaseClasses, guessTilePlaceholderClasses].join(" ")}
@@ -242,15 +285,102 @@ export default function HomePage() {
                   stroke="currentColor"
                   strokeWidth="2.2"
                   strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <path d="M5 12h14"/>
-                  <path d="m13 6 6 6-6 6"/>
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m13 6 6 6-6 6" />
                 </svg>
               </button>
             </div>
           </section>
+
+          {errorMessage ? (
+            <p className="text-center text-sm text-rose-300">{errorMessage}</p>
+          ) : null}
         </div>
       </section>
+
+      {isGameOverDialogOpen ? (
+        <div
+          className={[
+            "fixed inset-0 z-50 transition-all duration-200 sm:flex sm:items-center sm:justify-center sm:p-6",
+            isGameOverDialogVisible ? "bg-zinc-950/80 backdrop-blur-sm" : "bg-zinc-950/0 backdrop-blur-none",
+          ].join(" ")}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="game-over-title"
+            className={[
+              dialogPanelClasses,
+              "transition-all duration-200",
+              isGameOverDialogVisible
+                ? "translate-y-0 opacity-100 sm:scale-100"
+                : "translate-y-2 opacity-0 sm:translate-y-3 sm:scale-[0.98]",
+            ].join(" ")}
+          >
+            <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:block">
+              <div className="space-y-8">
+                <div className="space-y-2 text-center">
+                  <h2 id="game-over-title" className="text-2xl font-semibold text-zinc-50 sm:text-3xl">
+                    {resultTitle}
+                  </h2>
+                  <p className="text-sm text-zinc-400 sm:text-base">
+                    {resultRecap}
+                  </p>
+                </div>
+
+                <div className="flex justify-center gap-3 sm:gap-4">
+                  {Array.from(puzzle.learning.hanzi).map((character, index) => (
+                    <div key={`${character}-${index}`} className="min-w-0 text-center">
+                      <p className="text-4xl font-semibold text-zinc-50 sm:text-[2.75rem]">
+                        {character}
+                      </p>
+                      <p className="mt-2 text-sm text-zinc-400 sm:text-base">
+                        {pinyinSyllables[index] ?? ""}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-6 border-t border-zinc-800 pt-6">
+                  <section className="mx-auto max-w-sm space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+                      Meaning
+                    </p>
+                    <p className="text-sm leading-6 text-zinc-200 sm:text-base">
+                      {puzzle.learning.meaning}
+                    </p>
+                  </section>
+
+                  <section className="mx-auto max-w-sm space-y-3">
+                    <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+                      {puzzle.learning.examples.length > 1 ? "Examples" : "Example"}
+                    </p>
+                    <div className="space-y-3">
+                      {puzzle.learning.examples.map((example) => (
+                        <p key={example} className="text-sm leading-6 text-zinc-300 sm:text-base">
+                          {example}
+                        </p>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={handleCloseGameOverDialog}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-300 active:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

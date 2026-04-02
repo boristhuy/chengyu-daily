@@ -21,7 +21,8 @@ const guessTileEmptyClasses = "border-zinc-700 bg-zinc-900 text-zinc-600";
 const guessTilePlaceholderClasses = "border-zinc-800 bg-zinc-950/70 text-zinc-700";
 const poolTileBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg font-semibold transition-colors";
 const submitButtonBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg transition-colors";
-const dialogPanelClasses = "w-full min-h-screen bg-zinc-950 px-4 py-6 sm:min-h-0 sm:max-w-lg sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900 sm:p-7";
+const dialogPanelClasses = "w-full min-h-screen bg-zinc-950 px-5 py-8 sm:min-h-0 sm:max-w-md sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900 sm:px-7 sm:py-8";
+const DIALOG_TRANSITION_MS = 180;
 
 function buildGuessSlots(currentGuess: string[]) {
   return Array.from({ length: GUESS_LENGTH }, (_, index) => currentGuess[index] ?? null);
@@ -53,11 +54,16 @@ function getPoolFeedbackMap(puzzle: Puzzle) {
   return feedbackByCharacter;
 }
 
+function buildPinyinSyllables(pinyin: string) {
+  return pinyin.split(/\s+/).filter(Boolean);
+}
+
 export default function HomePage() {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [currentGuess, setCurrentGuess] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isGameOverDialogOpen, setIsGameOverDialogOpen] = useState(false);
+  const [isGameOverDialogVisible, setIsGameOverDialogVisible] = useState(false);
 
   useEffect(() => {
     setPuzzle(createPuzzle());
@@ -68,6 +74,24 @@ export default function HomePage() {
       setIsGameOverDialogOpen(true);
     }
   }, [puzzle]);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    if (isGameOverDialogOpen) {
+      timeoutId = setTimeout(() => {
+        setIsGameOverDialogVisible(true);
+      }, 10);
+    } else {
+      setIsGameOverDialogVisible(false);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isGameOverDialogOpen]);
 
   function handleSelectCharacter(character: string) {
     if (!puzzle || puzzle.isSolved || puzzle.isFailed || currentGuess.length >= GUESS_LENGTH) {
@@ -132,9 +156,18 @@ export default function HomePage() {
   const history = puzzle.guesses;
   const poolFeedbackMap = getPoolFeedbackMap(puzzle);
   const activeRowIndex = isGameOver ? -1 : history.length;
+  const pinyinSyllables = buildPinyinSyllables(puzzle.learning.pinyin);
+  const resultTitle = puzzle.isSolved ? "Congratulations!" : "Not this time";
   const resultRecap = puzzle.isSolved
-    ? `Victory! You solved it in ${puzzle.attemptCount} ${puzzle.attemptCount === 1 ? "attempt" : "attempts"}.`
-    : `Game over. You used all ${MAX_GUESSES} attempts.`;
+    ? "You got it"
+    : "The answer was";
+
+  function handleCloseGameOverDialog() {
+    setIsGameOverDialogVisible(false);
+    setTimeout(() => {
+      setIsGameOverDialogOpen(false);
+    }, DIALOG_TRANSITION_MS);
+  }
 
   return (
     <main className="px-4 py-8 sm:px-6 sm:py-10">
@@ -268,69 +301,78 @@ export default function HomePage() {
       </section>
 
       {isGameOverDialogOpen ? (
-        <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm sm:flex sm:items-center sm:justify-center sm:p-6">
+        <div
+          className={[
+            "fixed inset-0 z-50 transition-all duration-200 sm:flex sm:items-center sm:justify-center sm:p-6",
+            isGameOverDialogVisible ? "bg-zinc-950/80 backdrop-blur-sm" : "bg-zinc-950/0 backdrop-blur-none",
+          ].join(" ")}
+        >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="game-over-title"
-            className={dialogPanelClasses}
+            className={[
+              dialogPanelClasses,
+              "transition-all duration-200",
+              isGameOverDialogVisible
+                ? "translate-y-0 opacity-100 sm:scale-100"
+                : "translate-y-2 opacity-0 sm:translate-y-3 sm:scale-[0.98]",
+            ].join(" ")}
           >
-            <div className="mx-auto flex h-full max-w-lg flex-col justify-between gap-6 sm:block">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.3em] text-sky-300">
-                  {puzzle.isSolved ? "Victory" : "Finished"}
-                </p>
-                <h2 id="game-over-title" className="mt-3 text-2xl font-semibold text-zinc-50 sm:text-3xl">
-                  {resultRecap}
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  Correct chengyu: <span className="font-medium text-zinc-100">{puzzle.target}</span>
-                </p>
-              </div>
+            <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:block">
+              <div className="space-y-8">
+                <div className="space-y-2 text-center">
+                  <h2 id="game-over-title" className="text-2xl font-semibold text-zinc-50 sm:text-3xl">
+                    {resultTitle}
+                  </h2>
+                  <p className="text-sm text-zinc-400 sm:text-base">
+                    {resultRecap}
+                  </p>
+                </div>
 
-              <section className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
-                <p className="text-xs font-medium uppercase tracking-[0.3em] text-zinc-500">
-                  Learning
-                </p>
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <p className="text-3xl font-semibold tracking-[0.08em] text-zinc-50">
-                      {puzzle.learning.hanzi}
-                    </p>
-                    <p className="mt-2 text-base text-sky-200">
-                      {puzzle.learning.pinyin}
-                    </p>
-                  </div>
+                <div className="flex justify-center gap-3 sm:gap-4">
+                  {Array.from(puzzle.learning.hanzi).map((character, index) => (
+                    <div key={`${character}-${index}`} className="min-w-0 text-center">
+                      <p className="text-4xl font-semibold text-zinc-50 sm:text-[2.75rem]">
+                        {character}
+                      </p>
+                      <p className="mt-2 text-sm text-zinc-400 sm:text-base">
+                        {pinyinSyllables[index] ?? ""}
+                      </p>
+                    </div>
+                  ))}
+                </div>
 
-                  <div>
+                <div className="space-y-6 border-t border-zinc-800 pt-6">
+                  <section className="mx-auto max-w-sm space-y-2">
                     <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
                       Meaning
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-zinc-200">
+                    <p className="text-sm leading-6 text-zinc-200 sm:text-base">
                       {puzzle.learning.meaning}
                     </p>
-                  </div>
+                  </section>
 
-                  <div>
+                  <section className="mx-auto max-w-sm space-y-3">
                     <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
-                      Example
+                      {puzzle.learning.examples.length > 1 ? "Examples" : "Example"}
                     </p>
-                    <div className="mt-2 space-y-2">
+                    <div className="space-y-3">
                       {puzzle.learning.examples.map((example) => (
-                        <p key={example} className="text-sm leading-6 text-zinc-300">
+                        <p key={example} className="text-sm leading-6 text-zinc-300 sm:text-base">
                           {example}
                         </p>
                       ))}
                     </div>
-                  </div>
+                  </section>
                 </div>
-              </section>
+              </div>
 
-              <div className="flex justify-end">
+              <div className="mt-8 flex justify-center sm:justify-end">
                 <button
                   type="button"
-                  onClick={() => setIsGameOverDialogOpen(false)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-white"
+                  onClick={handleCloseGameOverDialog}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-300 active:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
                 >
                   Close
                 </button>

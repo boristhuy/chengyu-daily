@@ -86,18 +86,34 @@ export function createPuzzle(): Puzzle {
 export function getFeedback(guess: string, target: Chengyu): GuessFeedback[] {
   const guessCharacters = splitCharacters(guess);
   const targetCharacters = splitCharacters(target);
+  const feedback: GuessFeedback[] = guessCharacters.map((character, index) => ({
+    character,
+    index,
+    status: "absent",
+  }));
+  const guessIndexesByCharacter = new Map<string, number[]>();
 
-  return guessCharacters.map((character, index) => {
-    if (targetCharacters[index] === character) {
-      return { character, index, status: "correct" };
+  guessCharacters.forEach((character, index) => {
+    const indexes = guessIndexesByCharacter.get(character) ?? [];
+    indexes.push(index);
+    guessIndexesByCharacter.set(character, indexes);
+  });
+
+  for (const [character, indexes] of guessIndexesByCharacter) {
+    const correctIndex = indexes.find((index) => targetCharacters[index] === character);
+
+    if (correctIndex !== undefined) {
+      feedback[correctIndex] = { character, index: correctIndex, status: "correct" };
+      continue;
     }
 
     if (targetCharacters.includes(character)) {
-      return { character, index, status: "present" };
+      const presentIndex = indexes[0];
+      feedback[presentIndex] = { character, index: presentIndex, status: "present" };
     }
+  }
 
-    return { character, index, status: "absent" };
-  });
+  return feedback;
 }
 
 export function submitGuess(puzzle: Puzzle, guess: string): SubmitGuessResult {

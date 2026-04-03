@@ -4,24 +4,23 @@ import { createPuzzle, type GuessFeedbackStatus, MAX_GUESSES, type Puzzle, submi
 const GUESS_LENGTH = 4;
 
 const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
-  correct: "border-transparent bg-emerald-400 text-white",
-  present: "border-transparent bg-amber-400 text-white",
+  correct: "border-transparent bg-green-500 text-white",
+  present: "border-transparent bg-yellow-500 text-white",
   absent: "border-transparent bg-zinc-700 text-zinc-100",
 };
 
 const poolColorClasses = {
   default: "border-transparent bg-zinc-800 text-zinc-100 hover:bg-zinc-700",
   absent: "border-transparent bg-zinc-700 text-zinc-700",
-  selected: "border-zinc-500 bg-transparent text-zinc-100 hover:bg-transparent",
 } as const;
 
 const guessTileBaseClasses = "flex h-[3rem] w-[3rem] items-center justify-center rounded-xl border text-2xl font-semibold";
 const guessTileFilledClasses = "border-zinc-700 bg-zinc-900 text-zinc-100";
 const guessTileEmptyClasses = "border-zinc-700 bg-zinc-900 text-zinc-600";
 const guessTilePlaceholderClasses = "border-zinc-800 bg-zinc-950/70 text-zinc-700";
-const poolTileBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg font-semibold transition-colors";
+const poolTileBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg font-semibold transition-colors transition-transform duration-100 active:scale-95";
 const submitButtonBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg transition-colors";
-const dialogPanelClasses = "w-full min-h-screen bg-zinc-950 px-5 py-8 sm:min-h-0 sm:max-w-md sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900 sm:px-7 sm:py-8";
+const dialogPanelClasses = "w-full min-h-screen bg-zinc-950 sm:min-h-0 sm:max-w-sm sm:overflow-hidden sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900";
 const DIALOG_TRANSITION_MS = 180;
 
 function buildGuessSlots(currentGuess: string[]) {
@@ -98,10 +97,6 @@ export default function HomePage() {
       return;
     }
 
-    if (currentGuess.includes(character)) {
-      return;
-    }
-
     setCurrentGuess((guess) => [...guess, character]);
     setErrorMessage(null);
   }
@@ -157,16 +152,24 @@ export default function HomePage() {
   const poolFeedbackMap = getPoolFeedbackMap(puzzle);
   const activeRowIndex = isGameOver ? -1 : history.length;
   const pinyinSyllables = buildPinyinSyllables(puzzle.learning.pinyin);
-  const resultTitle = puzzle.isSolved ? "Congratulations!" : "Not this time";
-  const resultRecap = puzzle.isSolved
-    ? "You got it"
-    : "The answer was";
+  const resultTitle = puzzle.isSolved ? "You won!" : "Game over!";
+  const resultHeaderClasses = puzzle.isSolved
+    ? "border-transparent bg-green-500 text-white"
+    : "border-transparent bg-red-500 text-white";
 
   function handleCloseGameOverDialog() {
     setIsGameOverDialogVisible(false);
     setTimeout(() => {
       setIsGameOverDialogOpen(false);
     }, DIALOG_TRANSITION_MS);
+  }
+
+  function handleOpenGameOverDialog() {
+    if (!isGameOver) {
+      return;
+    }
+
+    setIsGameOverDialogOpen(true);
   }
 
   return (
@@ -178,7 +181,7 @@ export default function HomePage() {
 
         <div className="mt-6 space-y-6">
           <section>
-            <ol className="space-y-1.5">
+            <ol className="grid justify-center gap-1.5">
               {Array.from({ length: MAX_GUESSES }, (_, rowIndex) => {
                 const guess = history[rowIndex];
                 const isActiveRow = rowIndex === activeRowIndex;
@@ -201,7 +204,7 @@ export default function HomePage() {
                       ) : isActiveRow ? (
                         guessSlots.map((character, index) => (
                           <button
-                            key={`guess-slot-${rowIndex}-${index}`}
+                            key={`guess-slot-${rowIndex}-${index}-${character ?? "empty"}`}
                             type="button"
                             onClick={() => handleRemoveCharacter(index)}
                             disabled={!character || isGameOver}
@@ -209,6 +212,7 @@ export default function HomePage() {
                               guessTileBaseClasses,
                               "transition-colors",
                               character ? guessTileFilledClasses : guessTileEmptyClasses,
+                              character ? "animate-guess-slot-pop" : "",
                               !character || isGameOver ? "disabled:cursor-default" : "",
                             ].join(" ")}
                           >
@@ -231,67 +235,72 @@ export default function HomePage() {
           </section>
 
           <section>
-            <div className="flex flex-wrap justify-center gap-2">
-              {puzzle.pool.map((character) => {
-                const isSelected = currentGuess.includes(character);
-                const feedbackStatus = poolFeedbackMap.get(character);
-                const isAbsent = feedbackStatus === "absent";
-                const isDisabled =
-                  isSelected ||
-                  isAbsent ||
-                  currentGuess.length >= GUESS_LENGTH ||
-                  isGameOver;
+            {isGameOver ? (
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleOpenGameOverDialog}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-zinc-800 px-5 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700"
+                >
+                  Results
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-center gap-1.5">
+                {puzzle.pool.map((character) => {
+                  const feedbackStatus = poolFeedbackMap.get(character);
+                  const isAbsent = feedbackStatus === "absent";
+                  const isDisabled = isAbsent || currentGuess.length >= GUESS_LENGTH;
 
-                return (
-                  <button
-                    key={character}
-                    type="button"
-                    onClick={() => handleSelectCharacter(character)}
-                    disabled={isDisabled}
-                    className={[
-                      poolTileBaseClasses,
-                      isSelected
-                        ? poolColorClasses.selected
-                        : feedbackStatus
+                  return (
+                    <button
+                      key={character}
+                      type="button"
+                      onClick={() => handleSelectCharacter(character)}
+                      disabled={isDisabled}
+                      className={[
+                        poolTileBaseClasses,
+                        feedbackStatus
                           ? feedbackStatus === "absent"
                             ? poolColorClasses.absent
                             : feedbackStatusClasses[feedbackStatus]
                           : poolColorClasses.default,
-                      isDisabled ? "disabled:cursor-not-allowed" : "",
-                    ].join(" ")}
-                  >
-                    {isAbsent ? "" : character}
-                  </button>
-                );
-              })}
+                        isDisabled ? "disabled:cursor-not-allowed" : "",
+                      ].join(" ")}
+                    >
+                      {isAbsent ? "" : character}
+                    </button>
+                  );
+                })}
 
-              <button
-                type="button"
-                onClick={handleSubmitGuess}
-                disabled={isSubmitDisabled}
-                aria-label="Submit guess"
-                className={[
-                  submitButtonBaseClasses,
-                  isSubmitDisabled
-                    ? "border-transparent bg-zinc-800 text-zinc-500"
-                    : "border-transparent bg-zinc-100 text-zinc-950 hover:bg-white",
-                ].join(" ")}
-              >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  className="h-4 w-4 sm:h-5 sm:w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                <button
+                  type="button"
+                  onClick={handleSubmitGuess}
+                  disabled={isSubmitDisabled}
+                  aria-label="Submit guess"
+                  className={[
+                    submitButtonBaseClasses,
+                    isSubmitDisabled
+                      ? "border-transparent bg-zinc-800 text-zinc-500"
+                      : "border-transparent bg-zinc-100 text-zinc-950 hover:bg-white",
+                  ].join(" ")}
                 >
-                  <path d="M5 12h14" />
-                  <path d="m13 6 6 6-6 6" />
-                </svg>
-              </button>
-            </div>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 sm:h-5 sm:w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m13 6 6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </section>
 
           {errorMessage ? (
@@ -319,18 +328,25 @@ export default function HomePage() {
                 : "translate-y-2 opacity-0 sm:translate-y-3 sm:scale-[0.98]",
             ].join(" ")}
           >
-            <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:block">
-              <div className="space-y-8">
-                <div className="space-y-2 text-center">
-                  <h2 id="game-over-title" className="text-2xl font-semibold text-zinc-50 sm:text-3xl">
+            <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:max-w-none">
+              <div className="space-y-6 px-5 py-8 sm:px-6 sm:py-6">
+                <div
+                  className={[
+                    "-mx-5 -mt-8 border-b px-5 py-4 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
+                    resultHeaderClasses,
+                  ].join(" ")}
+                >
+                  <h2 id="game-over-title" className="text-2xl font-semibold sm:text-[1.75rem]">
                     {resultTitle}
                   </h2>
-                  <p className="text-sm text-zinc-400 sm:text-base">
-                    {resultRecap}
-                  </p>
                 </div>
 
-                <div className="flex justify-center gap-3 sm:gap-4">
+                <div className="space-y-3">
+                  <p className="text-center text-sm text-zinc-400 sm:text-base">
+                    The answer was
+                  </p>
+
+                  <div className="flex justify-center gap-3 sm:gap-4">
                   {Array.from(puzzle.learning.hanzi).map((character, index) => (
                     <div key={`${character}-${index}`} className="min-w-0 text-center">
                       <p className="text-4xl font-semibold text-zinc-50 sm:text-[2.75rem]">
@@ -341,25 +357,26 @@ export default function HomePage() {
                       </p>
                     </div>
                   ))}
+                  </div>
                 </div>
 
-                <div className="space-y-6 border-t border-zinc-800 pt-6">
-                  <section className="mx-auto max-w-sm space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+                <div className="space-y-4 border-t border-zinc-800 pt-4">
+                  <section className="mx-auto max-w-sm space-y-1.5">
+                    <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-zinc-500">
                       Meaning
                     </p>
-                    <p className="text-sm leading-6 text-zinc-200 sm:text-base">
+                    <p className="text-sm leading-5 text-zinc-100">
                       {puzzle.learning.meaning}
                     </p>
                   </section>
 
-                  <section className="mx-auto max-w-sm space-y-3">
-                    <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+                  <section className="mx-auto max-w-sm space-y-2">
+                    <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-zinc-500">
                       {puzzle.learning.examples.length > 1 ? "Examples" : "Example"}
                     </p>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {puzzle.learning.examples.map((example) => (
-                        <p key={example} className="text-sm leading-6 text-zinc-300 sm:text-base">
+                        <p key={example} className="text-sm leading-5 text-zinc-100">
                           {example}
                         </p>
                       ))}
@@ -368,11 +385,11 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex justify-center sm:justify-end">
+              <div className="px-5 pb-8 sm:px-6 sm:pb-6">
                 <button
                   type="button"
                   onClick={handleCloseGameOverDialog}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-300 active:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-300 active:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 sm:w-auto"
                 >
                   Close
                 </button>

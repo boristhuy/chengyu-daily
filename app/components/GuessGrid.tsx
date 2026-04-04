@@ -29,7 +29,6 @@ type FeedbackTileProps = {
 function PastGuessTile({rowIndex, index, character, status}: FeedbackTileProps) {
   return (
     <div
-      key={`past-guess-slot-${rowIndex}-${index}`}
       className={[
         "ui-tile ui-tile-guess",
         feedbackStatusClasses[status],
@@ -54,7 +53,6 @@ function CurrentGuessTile({rowIndex, index, character, isGameOver, onRemoveChara
 
   return (
     <button
-      key={`guess-slot-${rowIndex}-${index}-${character ?? "empty"}`}
       type="button"
       onClick={() => onRemoveCharacter(index)}
       disabled={!character || isGameOver}
@@ -77,7 +75,6 @@ type PlaceholderTileProps = {
 function EmptyGuessTile({rowIndex, index}: PlaceholderTileProps) {
   return (
     <div
-      key={`placeholder-slot-${rowIndex}-${index}`}
       className="ui-tile ui-tile-guess ui-tile-placeholder"
     />
   );
@@ -100,7 +97,7 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                 {guess
                   ? guess.feedback.map((slot) => (
                     <PastGuessTile
-                      key={`past-guess-slot-${rowIndex}-${slot.index}`}
+                      key={`past-slot-${rowIndex}-${slot.index}`}
                       rowIndex={rowIndex}
                       index={slot.index}
                       character={slot.character}
@@ -110,7 +107,7 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                   : isActiveRow
                     ? guessSlots.map((character, index) => (
                       <CurrentGuessTile
-                        key={`guess-slot-${rowIndex}-${index}-${character ?? "empty"}`}
+                        key={`current-slot-${rowIndex}-${index}-${character ?? "empty"}`}
                         rowIndex={rowIndex}
                         index={index}
                         character={character}
@@ -120,7 +117,7 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                     ))
                     : Array.from({length: GUESS_LENGTH}, (_, index) => (
                       <EmptyGuessTile
-                        key={`placeholder-slot-${rowIndex}-${index}`}
+                        key={`empty-slot-${rowIndex}-${index}`}
                         rowIndex={rowIndex}
                         index={index}
                       />

@@ -131,7 +131,7 @@ export function CharacterPool({
           onClick={onOpenResults}
           className="ui-button ui-button-primary"
         >
-          Results
+          查看结果
         </button>
       </div>
     );

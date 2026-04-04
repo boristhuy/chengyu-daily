@@ -12,7 +12,7 @@ function buildPinyinSyllables(pinyin: string) {
 }
 
 function DialogHeader({isSolved}: {isSolved: boolean}) {
-  const resultTitle = isSolved ? "You won!" : "Game over!";
+  const resultTitle = isSolved ? "挑战成功" : "挑战结束";
   const resultHeaderClasses = isSolved
     ? "ui-feedback-correct"
     : "ui-feedback-failure";
@@ -37,7 +37,7 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
   return (
     <div className="space-y-3">
       <p className="ui-dialog-support text-center text-sm sm:text-base">
-        The answer was
+        正确答案
       </p>
 
       <div className="flex justify-center gap-3 sm:gap-4">
@@ -61,7 +61,7 @@ function LearningSummary({meaning, examples}: {meaning: string; examples: string
     <div className="ui-section-divider space-y-4 border-t pt-4">
       <section className="mx-auto max-w-sm space-y-1.5">
         <p className="ui-dialog-label">
-          Meaning
+          释义
         </p>
         <p className="ui-dialog-copy">
           {meaning}
@@ -70,7 +70,7 @@ function LearningSummary({meaning, examples}: {meaning: string; examples: string
 
       <section className="mx-auto max-w-sm space-y-2">
         <p className="ui-dialog-label">
-          {examples.length > 1 ? "Examples" : "Example"}
+          例句
         </p>
         <div className="space-y-2">
           {examples.map((example) => (
@@ -127,7 +127,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
               onClick={onClose}
               className="ui-button ui-button-primary w-full sm:w-auto"
             >
-              Close
+              关闭
             </button>
           </div>
         </div>

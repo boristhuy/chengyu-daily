@@ -26,8 +26,8 @@ export default function HomePage() {
       <section className="mx-auto w-full max-w-2xl">
         <GameHeader/>
 
-        <div className="mt-6 space-y-6">
-          <section>
+        <div className="mt-8 space-y-5 sm:space-y-6">
+          <section className="ui-game-board">
             <GuessGrid
               history={puzzle.guesses}
               currentGuess={currentGuess}
@@ -36,7 +36,7 @@ export default function HomePage() {
             />
           </section>
 
-          <section>
+          <section className="ui-control-panel">
             <CharacterPool
               puzzle={puzzle}
               currentGuess={currentGuess}

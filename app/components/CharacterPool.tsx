@@ -3,18 +3,15 @@ import {type GuessFeedbackStatus, type Puzzle} from "../game";
 const GUESS_LENGTH = 4;
 
 const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
-  correct: "border-transparent bg-green-500 text-white",
-  present: "border-transparent bg-yellow-500 text-white",
-  absent: "border-transparent bg-zinc-700 text-zinc-700",
+  correct: "ui-feedback-correct",
+  present: "ui-feedback-present",
+  absent: "ui-feedback-absent",
 };
 
 const poolColorClasses = {
-  default: "border-transparent bg-zinc-800 text-zinc-100 hover:bg-zinc-700",
-  absent: "border-transparent bg-zinc-700 text-zinc-700",
+  default: "ui-tile-pool-default",
+  absent: "ui-feedback-absent",
 } as const;
-
-const poolTileBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg font-semibold transition-colors transition-transform duration-100 active:scale-95";
-const submitButtonBaseClasses = "flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg transition-colors";
 
 type CharacterPoolProps = {
   puzzle: Puzzle;
@@ -68,7 +65,7 @@ export function CharacterPool({
         <button
           type="button"
           onClick={onOpenResults}
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-zinc-800 px-5 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700"
+          className="ui-button ui-button-secondary"
         >
           Results
         </button>
@@ -90,7 +87,7 @@ export function CharacterPool({
             onClick={() => onSelectCharacter(character)}
             disabled={isDisabled}
             className={[
-              poolTileBaseClasses,
+              "ui-tile ui-tile-pool",
               feedbackStatus
                 ? feedbackStatus === "absent"
                   ? poolColorClasses.absent
@@ -110,7 +107,7 @@ export function CharacterPool({
         disabled={isSubmitDisabled}
         aria-label="Submit guess"
         className={[
-          submitButtonBaseClasses,
+          "ui-icon-button",
           isSubmitDisabled
             ? "border-transparent bg-zinc-800 text-zinc-500"
             : "border-transparent bg-zinc-100 text-zinc-950 hover:bg-white",

@@ -18,15 +18,10 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
   const activeRowIndex = isGameOver ? -1 : history.length;
 
   const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
-    correct: "border-transparent bg-green-500 text-white",
-    present: "border-transparent bg-yellow-500 text-white",
+    correct: "ui-feedback-correct",
+    present: "ui-feedback-present",
     absent: "border-transparent bg-zinc-700 text-zinc-100",
   };
-
-  const guessTileBaseClasses = "flex h-[3rem] w-[3rem] items-center justify-center rounded-xl border text-2xl font-semibold";
-  const guessTileFilledClasses = "border-zinc-700 bg-zinc-900 text-zinc-100";
-  const guessTileEmptyClasses = "border-zinc-700 bg-zinc-900 text-zinc-600";
-  const guessTilePlaceholderClasses = "border-zinc-800 bg-zinc-950/70 text-zinc-700";
 
   return (
     <section>
@@ -43,7 +38,7 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                     <div
                       key={`${guess.attemptNumber}-${slot.index}`}
                       className={[
-                        guessTileBaseClasses,
+                        "ui-tile ui-tile-guess",
                         feedbackStatusClasses[slot.status],
                       ].join(" ")}
                     >
@@ -58,9 +53,9 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                       onClick={() => onRemoveCharacter(index)}
                       disabled={!character || isGameOver}
                       className={[
-                        guessTileBaseClasses,
+                        "ui-tile ui-tile-guess",
                         "transition-colors",
-                        character ? guessTileFilledClasses : guessTileEmptyClasses,
+                        character ? "ui-tile-guess-filled" : "ui-tile-guess-empty",
                         character ? "animate-guess-slot-pop" : "",
                         !character || isGameOver ? "disabled:cursor-default" : "",
                       ].join(" ")}
@@ -72,7 +67,7 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                   Array.from({length: GUESS_LENGTH}, (_, index) => (
                     <div
                       key={`placeholder-slot-${rowIndex}-${index}`}
-                      className={[guessTileBaseClasses, guessTilePlaceholderClasses].join(" ")}
+                      className="ui-tile ui-tile-guess ui-tile-placeholder"
                     />
                   ))
                 )}

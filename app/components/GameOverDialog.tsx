@@ -1,7 +1,5 @@
 import {type Puzzle} from "../game";
 
-const dialogPanelClasses = "w-full min-h-screen bg-zinc-950 sm:min-h-0 sm:max-w-sm sm:overflow-hidden sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900";
-
 type GameOverDialogProps = {
   puzzle: Puzzle;
   isOpen: boolean;
@@ -21,7 +19,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
   const pinyinSyllables = buildPinyinSyllables(puzzle.learning.pinyin);
   const resultTitle = puzzle.isSolved ? "You won!" : "Game over!";
   const resultHeaderClasses = puzzle.isSolved
-    ? "border-transparent bg-green-500 text-white"
+    ? "ui-feedback-correct"
     : "border-transparent bg-red-500 text-white";
 
   return (
@@ -36,7 +34,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
         aria-modal="true"
         aria-labelledby="game-over-title"
         className={[
-          dialogPanelClasses,
+          "ui-dialog-panel",
           "transition-all duration-200",
           isVisible
             ? "translate-y-0 opacity-100 sm:scale-100"
@@ -77,21 +75,21 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
 
             <div className="space-y-4 border-t border-zinc-800 pt-4">
               <section className="mx-auto max-w-sm space-y-1.5">
-                <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-zinc-500">
+                <p className="ui-dialog-label">
                   Meaning
                 </p>
-                <p className="text-sm leading-5 text-zinc-100">
+                <p className="ui-dialog-copy">
                   {puzzle.learning.meaning}
                 </p>
               </section>
 
               <section className="mx-auto max-w-sm space-y-2">
-                <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-zinc-500">
+                <p className="ui-dialog-label">
                   {puzzle.learning.examples.length > 1 ? "Examples" : "Example"}
                 </p>
                 <div className="space-y-2">
                   {puzzle.learning.examples.map((example) => (
-                    <p key={example} className="text-sm leading-5 text-zinc-100">
+                    <p key={example} className="ui-dialog-copy">
                       {example}
                     </p>
                   ))}
@@ -104,7 +102,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-300 active:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 sm:w-auto"
+              className="ui-button ui-button-primary w-full sm:w-auto"
             >
               Close
             </button>

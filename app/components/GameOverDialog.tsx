@@ -20,7 +20,7 @@ function DialogHeader({isSolved}: {isSolved: boolean}) {
   return (
     <div
       className={[
-        "-mx-5 -mt-8 border-b border-black/10 px-5 py-3 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
+        "-mx-5 -mt-8 flex min-h-14 items-center justify-center border-b border-black/10 px-5 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
         resultHeaderClasses,
       ].join(" ")}
     >
@@ -121,7 +121,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
             />
           </div>
 
-          <div className="px-5 pb-4 sm:px-6 sm:pb-4">
+          <div className="flex min-h-14 items-center px-5 py-1 sm:px-6">
             <button
               type="button"
               onClick={onClose}

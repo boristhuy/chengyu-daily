@@ -85,12 +85,7 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
 
           return (
             <li key={`attempt-row-${rowIndex + 1}`}>
-              <div
-                className={[
-                  "flex justify-center gap-1.5 rounded-2xl px-2 py-1.5 transition-colors",
-                  isActiveRow ? "bg-[color:color-mix(in_srgb,var(--color-surface-active)_60%,transparent)]" : "",
-                ].join(" ")}
-              >
+              <div className="flex justify-center gap-1.5">
                 {guess
                   ? guess.feedback.map((slot) => (
                     <PastGuessTile

@@ -24,7 +24,7 @@ function DialogHeader({isSolved}: {isSolved: boolean}) {
         resultHeaderClasses,
       ].join(" ")}
     >
-      <h2 id="game-over-title" className="text-2xl font-semibold sm:text-[1.75rem]">
+      <h2 id="game-over-title" className="text-3xl font-semibold tracking-[0.02em] sm:text-[2rem]">
         {resultTitle}
       </h2>
     </div>
@@ -35,7 +35,7 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
   const pinyinSyllables = buildPinyinSyllables(pinyin);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <p className="ui-dialog-support text-center text-sm sm:text-base">
         正确答案
       </p>
@@ -43,10 +43,10 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
       <div className="flex justify-center gap-3 sm:gap-4">
         {Array.from(hanzi).map((character, index) => (
           <div key={`${character}-${index}`} className="min-w-0 text-center">
-            <p className="text-4xl font-semibold text-[var(--color-text)] sm:text-[2.75rem]">
+            <p className="text-[2rem] font-semibold leading-none text-[var(--color-text)] sm:text-[2.25rem]">
               {character}
             </p>
-            <p className="ui-dialog-support mt-2 text-sm sm:text-base">
+            <p className="ui-dialog-support mt-1.5 text-xs sm:text-sm">
               {pinyinSyllables[index] ?? ""}
             </p>
           </div>
@@ -109,7 +109,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
         ].join(" ")}
       >
         <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:max-w-none">
-          <div className="space-y-6 px-5 py-8 sm:px-6 sm:py-6">
+          <div className="space-y-5 px-5 py-8 sm:px-6 sm:py-6">
             <DialogHeader isSolved={puzzle.isSolved}/>
             <AnswerPreview
               hanzi={puzzle.learning.hanzi}

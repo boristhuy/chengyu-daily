@@ -28,7 +28,12 @@ export default function HomePage() {
 
         <div className="mt-6 space-y-6">
           <section>
-            <GuessGrid history={puzzle.guesses} currentGuess={currentGuess} isGameOver={isGameOver} onRemoveCharacter={removeCharacter}></GuessGrid>
+            <GuessGrid
+              history={puzzle.guesses}
+              currentGuess={currentGuess}
+              isGameOver={isGameOver}
+              onRemoveCharacter={removeCharacter}
+            />
           </section>
 
           <section>

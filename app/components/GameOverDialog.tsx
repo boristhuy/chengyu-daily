@@ -11,16 +11,95 @@ function buildPinyinSyllables(pinyin: string) {
   return pinyin.split(/\s+/).filter(Boolean);
 }
 
+function DialogHeader({isSolved}: {isSolved: boolean}) {
+  const resultTitle = isSolved ? "You won!" : "Game over!";
+  const resultHeaderClasses = isSolved
+    ? "ui-feedback-correct"
+    : "border-transparent bg-red-500 text-white";
+
+  return (
+    <div
+      className={[
+        "-mx-5 -mt-8 border-b px-5 py-4 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
+        resultHeaderClasses,
+      ].join(" ")}
+    >
+      <h2 id="game-over-title" className="text-2xl font-semibold sm:text-[1.75rem]">
+        {resultTitle}
+      </h2>
+    </div>
+  );
+}
+
+function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
+  const pinyinSyllables = buildPinyinSyllables(pinyin);
+
+  return (
+    <div className="space-y-3">
+      <p className="text-center text-sm text-zinc-400 sm:text-base">
+        The answer was
+      </p>
+
+      <div className="flex justify-center gap-3 sm:gap-4">
+        {Array.from(hanzi).map((character, index) => (
+          <div key={`${character}-${index}`} className="min-w-0 text-center">
+            <p className="text-4xl font-semibold text-zinc-50 sm:text-[2.75rem]">
+              {character}
+            </p>
+            <p className="mt-2 text-sm text-zinc-400 sm:text-base">
+              {pinyinSyllables[index] ?? ""}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LearningSummary({meaning, examples}: {meaning: string; examples: string[]}) {
+  return (
+    <div className="space-y-4 border-t border-zinc-800 pt-4">
+      <section className="mx-auto max-w-sm space-y-1.5">
+        <p className="ui-dialog-label">
+          Meaning
+        </p>
+        <p className="ui-dialog-copy">
+          {meaning}
+        </p>
+      </section>
+
+      <section className="mx-auto max-w-sm space-y-2">
+        <p className="ui-dialog-label">
+          {examples.length > 1 ? "Examples" : "Example"}
+        </p>
+        <div className="space-y-2">
+          {examples.map((example) => (
+            <p key={example} className="ui-dialog-copy">
+              {example}
+            </p>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function CloseDialogButton({onClose}: {onClose: () => void}) {
+  return (
+    <button
+      type="button"
+      onClick={onClose}
+      className="ui-button ui-button-primary w-full sm:w-auto"
+    >
+      Close
+    </button>
+  );
+}
+
 export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDialogProps) {
   if (!isOpen) {
     return null;
   }
-
-  const pinyinSyllables = buildPinyinSyllables(puzzle.learning.pinyin);
-  const resultTitle = puzzle.isSolved ? "You won!" : "Game over!";
-  const resultHeaderClasses = puzzle.isSolved
-    ? "ui-feedback-correct"
-    : "border-transparent bg-red-500 text-white";
 
   return (
     <div
@@ -43,69 +122,19 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
       >
         <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:max-w-none">
           <div className="space-y-6 px-5 py-8 sm:px-6 sm:py-6">
-            <div
-              className={[
-                "-mx-5 -mt-8 border-b px-5 py-4 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
-                resultHeaderClasses,
-              ].join(" ")}
-            >
-              <h2 id="game-over-title" className="text-2xl font-semibold sm:text-[1.75rem]">
-                {resultTitle}
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              <p className="text-center text-sm text-zinc-400 sm:text-base">
-                The answer was
-              </p>
-
-              <div className="flex justify-center gap-3 sm:gap-4">
-                {Array.from(puzzle.learning.hanzi).map((character, index) => (
-                  <div key={`${character}-${index}`} className="min-w-0 text-center">
-                    <p className="text-4xl font-semibold text-zinc-50 sm:text-[2.75rem]">
-                      {character}
-                    </p>
-                    <p className="mt-2 text-sm text-zinc-400 sm:text-base">
-                      {pinyinSyllables[index] ?? ""}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4 border-t border-zinc-800 pt-4">
-              <section className="mx-auto max-w-sm space-y-1.5">
-                <p className="ui-dialog-label">
-                  Meaning
-                </p>
-                <p className="ui-dialog-copy">
-                  {puzzle.learning.meaning}
-                </p>
-              </section>
-
-              <section className="mx-auto max-w-sm space-y-2">
-                <p className="ui-dialog-label">
-                  {puzzle.learning.examples.length > 1 ? "Examples" : "Example"}
-                </p>
-                <div className="space-y-2">
-                  {puzzle.learning.examples.map((example) => (
-                    <p key={example} className="ui-dialog-copy">
-                      {example}
-                    </p>
-                  ))}
-                </div>
-              </section>
-            </div>
+            <DialogHeader isSolved={puzzle.isSolved}/>
+            <AnswerPreview
+              hanzi={puzzle.learning.hanzi}
+              pinyin={puzzle.learning.pinyin}
+            />
+            <LearningSummary
+              meaning={puzzle.learning.meaning}
+              examples={puzzle.learning.examples}
+            />
           </div>
 
           <div className="px-5 pb-8 sm:px-6 sm:pb-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="ui-button ui-button-primary w-full sm:w-auto"
-            >
-              Close
-            </button>
+            <CloseDialogButton onClose={onClose}/>
           </div>
         </div>
       </div>

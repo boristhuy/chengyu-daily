@@ -20,11 +20,11 @@ function DialogHeader({isSolved}: {isSolved: boolean}) {
   return (
     <div
       className={[
-        "-mx-5 -mt-8 border-b px-5 py-4 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
+        "-mx-5 -mt-8 border-b border-black/10 px-5 py-4 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
         resultHeaderClasses,
       ].join(" ")}
     >
-      <h2 id="game-over-title" className="text-3xl font-semibold tracking-[0.02em] sm:text-[2rem]">
+      <h2 id="game-over-title" className="text-3xl font-semibold tracking-[0.02em]">
         {resultTitle}
       </h2>
     </div>
@@ -36,17 +36,17 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
 
   return (
     <div className="space-y-2.5">
-      <p className="ui-dialog-support text-center text-sm sm:text-base">
+      <p className="text-center text-sm text-[var(--color-text-muted)]">
         正确答案
       </p>
 
       <div className="flex justify-center gap-3 sm:gap-4">
         {Array.from(hanzi).map((character, index) => (
           <div key={`${character}-${index}`} className="min-w-0 text-center">
-            <p className="text-[2rem] font-semibold leading-none text-[var(--color-text)] sm:text-[2.25rem]">
+            <p className="text-2xl font-semibold leading-none text-[var(--color-text)]">
               {character}
             </p>
-            <p className="ui-dialog-support mt-1.5 text-xs sm:text-sm">
+            <p className="mt-1.5 text-sm text-[var(--color-text-muted)]">
               {pinyinSyllables[index] ?? ""}
             </p>
           </div>
@@ -59,7 +59,7 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
 function LearningSummary({meaning, examples}: {meaning: string; examples: string[]}) {
   return (
     <div className="ui-section-divider space-y-4 border-t pt-4">
-      <section className="mx-auto max-w-sm space-y-1.5">
+      <section className="mx-auto max-w-sm space-y-1">
         <p className="ui-dialog-label">
           释义
         </p>

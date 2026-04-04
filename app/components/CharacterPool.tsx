@@ -129,7 +129,7 @@ export function CharacterPool({
         <button
           type="button"
           onClick={onOpenResults}
-          className="ui-button ui-button-secondary"
+          className="ui-button ui-button-primary"
         >
           Results
         </button>

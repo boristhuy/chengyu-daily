@@ -20,16 +20,16 @@ const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
 };
 
 type FeedbackTileProps = {
+  rowIndex: number;
   index: number;
   character: string;
-  attemptNumber: number;
   status: GuessFeedbackStatus;
 };
 
-function PastGuessTile({attemptNumber, index, character, status}: FeedbackTileProps) {
+function PastGuessTile({rowIndex, index, character, status}: FeedbackTileProps) {
   return (
     <div
-      key={`${attemptNumber}-${index}`}
+      key={`past-guess-slot-${rowIndex}-${index}`}
       className={[
         "ui-tile ui-tile-guess",
         feedbackStatusClasses[status],
@@ -100,8 +100,8 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                 {guess
                   ? guess.feedback.map((slot) => (
                     <PastGuessTile
-                      key={`${guess.attemptNumber}-${slot.index}`}
-                      attemptNumber={guess.attemptNumber}
+                      key={`past-guess-slot-${rowIndex}-${slot.index}`}
+                      rowIndex={rowIndex}
                       index={slot.index}
                       character={slot.character}
                       status={slot.status}

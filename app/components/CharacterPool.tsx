@@ -63,6 +63,7 @@ function PoolTile({character, feedbackStatus, isGuessFull, onSelectCharacter}: P
       ? poolColorClasses.absent
       : feedbackStatusClasses[feedbackStatus]
     : poolColorClasses.default;
+  const disabledClass = isDisabled ? "disabled:cursor-not-allowed" : "";
 
   return (
     <button
@@ -72,7 +73,7 @@ function PoolTile({character, feedbackStatus, isGuessFull, onSelectCharacter}: P
       className={[
         "ui-tile ui-tile-pool",
         colorClass,
-        isDisabled ? "disabled:cursor-not-allowed" : "",
+        disabledClass
       ].join(" ")}
     >
       {isAbsent ? "" : character}
@@ -80,22 +81,10 @@ function PoolTile({character, feedbackStatus, isGuessFull, onSelectCharacter}: P
   );
 }
 
-function ResultsButton({onOpenResults}: {onOpenResults: () => void}) {
-  return (
-    <button
-      type="button"
-      onClick={onOpenResults}
-      className="ui-button ui-button-secondary"
-    >
-      Results
-    </button>
-  );
-}
-
-function SubmitGuessButton({isDisabled, onSubmitGuess}: {isDisabled: boolean; onSubmitGuess: () => void}) {
+function SubmitButton({isDisabled, onSubmitGuess}: {isDisabled: boolean; onSubmitGuess: () => void}) {
   const buttonStateClass = isDisabled
-    ? "border-transparent bg-zinc-800 text-zinc-500"
-    : "border-transparent bg-zinc-100 text-zinc-950 hover:bg-white";
+    ? "ui-icon-button-disabled"
+    : "ui-icon-button-enabled";
 
   return (
     <button
@@ -137,7 +126,13 @@ export function CharacterPool({
   if (isGameOver) {
     return (
       <div className="flex justify-center">
-        <ResultsButton onOpenResults={onOpenResults}/>
+        <button
+          type="button"
+          onClick={onOpenResults}
+          className="ui-button ui-button-secondary"
+        >
+          Results
+        </button>
       </div>
     );
   }
@@ -154,7 +149,7 @@ export function CharacterPool({
         />
       ))}
 
-      <SubmitGuessButton
+      <SubmitButton
         isDisabled={isSubmitDisabled}
         onSubmitGuess={onSubmitGuess}
       />

@@ -2,38 +2,87 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --color-page: #f7f4ee;
+  --color-surface: #fbf8f2;
+  --color-surface-muted: #f3eee6;
+  --color-surface-active: #f8f2e9;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6f6a63;
+  --color-border-subtle: #ddd6cc;
+  --color-state-success: #6f8f78;
+  --color-state-partial: #d8ccb8;
+  --color-state-neutral: #e8e3db;
+  --color-state-failure: #d9cdc2;
+  --color-focus-ring: #8fae98;
+  --color-overlay: rgba(26, 26, 26, 0.16);
 }
 
 html, body {
   min-height: 100%;
+  background: var(--color-page);
+  color: var(--color-text);
 }
 
 @layer components {
   .ui-title-display {
     font-family: "Noto Sans SC", sans-serif;
     font-weight: 900;
-    @apply text-center text-5xl uppercase tracking-[0.04em] text-zinc-50;
+    @apply text-center text-5xl uppercase tracking-[0.04em];
+    color: var(--color-text);
   }
 
   .ui-button {
-    @apply inline-flex min-h-11 items-center justify-center rounded-2xl px-5 text-sm font-medium transition-colors;
+    @apply inline-flex min-h-11 items-center justify-center rounded-2xl px-5 text-sm font-medium transition-colors focus-visible:outline-none;
+  }
+
+  .ui-button:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
   }
 
   .ui-button-primary {
-    @apply bg-zinc-100 text-zinc-950 hover:bg-zinc-300 active:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900;
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+
+  .ui-button-primary:hover {
+    background: color-mix(in srgb, var(--color-text) 88%, white);
+  }
+
+  .ui-button-primary:active {
+    background: color-mix(in srgb, var(--color-text) 78%, white);
   }
 
   .ui-button-secondary {
-    @apply bg-zinc-800 text-zinc-100 hover:bg-zinc-700;
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+  }
+
+  .ui-button-secondary:hover {
+    background: var(--color-surface-active);
   }
 
   .ui-icon-button {
-    @apply flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl border text-lg transition-colors;
+    @apply flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl text-lg transition-colors;
+  }
+
+  .ui-icon-button-enabled {
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+
+  .ui-icon-button-enabled:hover {
+    background: color-mix(in srgb, var(--color-text) 88%, white);
+  }
+
+  .ui-icon-button-disabled {
+    background: var(--color-state-neutral);
+    color: var(--color-text-muted);
   }
 
   .ui-tile {
-    @apply flex items-center justify-center rounded-xl border font-semibold;
+    @apply flex items-center justify-center rounded-xl font-semibold;
   }
 
   .ui-tile-pool {
@@ -45,43 +94,85 @@ html, body {
   }
 
   .ui-tile-guess-filled {
-    @apply border-zinc-700 bg-zinc-900 text-zinc-100;
+    background: var(--color-surface-active);
+    color: var(--color-text);
   }
 
   .ui-tile-guess-empty {
-    @apply border-zinc-700 bg-zinc-900 text-zinc-600;
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
   }
 
   .ui-tile-placeholder {
-    @apply border-zinc-800 bg-zinc-950/70 text-zinc-700;
+    background: color-mix(in srgb, var(--color-surface-muted) 72%, var(--color-page));
+    color: transparent;
   }
 
   .ui-tile-pool-default {
-    @apply border-transparent bg-zinc-800 text-zinc-100 hover:bg-zinc-700;
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+  }
+
+  .ui-tile-pool-default:hover {
+    background: var(--color-surface-active);
   }
 
   .ui-feedback-correct {
-    @apply border-transparent bg-green-500 text-white;
+    background: var(--color-state-success);
+    color: var(--color-surface);
   }
 
   .ui-feedback-present {
-    @apply border-transparent bg-yellow-500 text-white;
+    background: var(--color-state-partial);
+    color: var(--color-text);
+  }
+
+  .ui-feedback-neutral {
+    background: var(--color-state-neutral);
+    color: var(--color-text-muted);
   }
 
   .ui-feedback-absent {
-    @apply border-transparent bg-zinc-700 text-zinc-700;
+    background: var(--color-state-neutral);
+    color: transparent;
+  }
+
+  .ui-feedback-failure {
+    background: var(--color-state-failure);
+    color: var(--color-text);
   }
 
   .ui-dialog-panel {
-    @apply w-full min-h-screen bg-zinc-950 sm:min-h-0 sm:max-w-sm sm:overflow-hidden sm:rounded-3xl sm:border sm:border-zinc-800 sm:bg-zinc-900;
+    @apply w-full min-h-screen sm:min-h-0 sm:max-w-sm sm:overflow-hidden sm:rounded-3xl;
+    background: var(--color-surface);
   }
 
   .ui-dialog-copy {
-    @apply text-sm leading-5 text-zinc-100;
+    @apply text-sm leading-5;
+    color: var(--color-text);
   }
 
   .ui-dialog-label {
-    @apply text-[0.65rem] font-medium uppercase tracking-[0.18em] text-zinc-500;
+    @apply text-[0.65rem] font-medium uppercase tracking-[0.18em];
+    color: var(--color-text-muted);
+  }
+
+  .ui-dialog-support {
+    color: var(--color-text-muted);
+  }
+
+  .ui-section-divider {
+    border-color: var(--color-border-subtle);
+  }
+
+  .ui-overlay-open {
+    background: var(--color-overlay);
+    @apply backdrop-blur-sm;
+  }
+
+  .ui-overlay-closed {
+    background: transparent;
+    @apply backdrop-blur-none;
   }
 }
 

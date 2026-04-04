@@ -16,17 +16,15 @@ function buildGuessSlots(currentGuess: string[]) {
 const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
   correct: "ui-feedback-correct",
   present: "ui-feedback-present",
-  absent: "border-transparent bg-zinc-700 text-zinc-100",
+  absent: "ui-feedback-neutral",
 };
 
 type FeedbackTileProps = {
-  rowIndex: number;
-  index: number;
   character: string;
   status: GuessFeedbackStatus;
 };
 
-function PastGuessTile({rowIndex, index, character, status}: FeedbackTileProps) {
+function PastGuessTile({character, status}: FeedbackTileProps) {
   return (
     <div
       className={[
@@ -40,14 +38,13 @@ function PastGuessTile({rowIndex, index, character, status}: FeedbackTileProps) 
 }
 
 type EditableTileProps = {
-  rowIndex: number;
   index: number;
   character: string | null;
   isGameOver: boolean;
   onRemoveCharacter: (index: number) => void;
 };
 
-function CurrentGuessTile({rowIndex, index, character, isGameOver, onRemoveCharacter}: EditableTileProps) {
+function CurrentGuessTile({index, character, isGameOver, onRemoveCharacter}: EditableTileProps) {
   const tileStateClass = character ? "ui-tile-guess-filled" : "ui-tile-guess-empty";
   const animationClass = character ? "animate-guess-slot-pop" : "";
 
@@ -67,12 +64,7 @@ function CurrentGuessTile({rowIndex, index, character, isGameOver, onRemoveChara
   );
 }
 
-type PlaceholderTileProps = {
-  rowIndex: number;
-  index: number;
-};
-
-function EmptyGuessTile({rowIndex, index}: PlaceholderTileProps) {
+function EmptyGuessTile() {
   return (
     <div
       className="ui-tile ui-tile-guess ui-tile-placeholder"
@@ -98,8 +90,6 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                   ? guess.feedback.map((slot) => (
                     <PastGuessTile
                       key={`past-slot-${rowIndex}-${slot.index}`}
-                      rowIndex={rowIndex}
-                      index={slot.index}
                       character={slot.character}
                       status={slot.status}
                     />
@@ -108,7 +98,6 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                     ? guessSlots.map((character, index) => (
                       <CurrentGuessTile
                         key={`current-slot-${rowIndex}-${index}-${character ?? "empty"}`}
-                        rowIndex={rowIndex}
                         index={index}
                         character={character}
                         isGameOver={isGameOver}
@@ -118,8 +107,6 @@ export function GuessGrid({history, currentGuess, isGameOver, onRemoveCharacter}
                     : Array.from({length: GUESS_LENGTH}, (_, index) => (
                       <EmptyGuessTile
                         key={`empty-slot-${rowIndex}-${index}`}
-                        rowIndex={rowIndex}
-                        index={index}
                       />
                     ))}
               </div>

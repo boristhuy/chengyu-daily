@@ -15,7 +15,7 @@ function DialogHeader({isSolved}: {isSolved: boolean}) {
   const resultTitle = isSolved ? "You won!" : "Game over!";
   const resultHeaderClasses = isSolved
     ? "ui-feedback-correct"
-    : "border-transparent bg-red-500 text-white";
+    : "ui-feedback-failure";
 
   return (
     <div
@@ -36,17 +36,17 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
 
   return (
     <div className="space-y-3">
-      <p className="text-center text-sm text-zinc-400 sm:text-base">
+      <p className="ui-dialog-support text-center text-sm sm:text-base">
         The answer was
       </p>
 
       <div className="flex justify-center gap-3 sm:gap-4">
         {Array.from(hanzi).map((character, index) => (
           <div key={`${character}-${index}`} className="min-w-0 text-center">
-            <p className="text-4xl font-semibold text-zinc-50 sm:text-[2.75rem]">
+            <p className="text-4xl font-semibold text-[var(--color-text)] sm:text-[2.75rem]">
               {character}
             </p>
-            <p className="mt-2 text-sm text-zinc-400 sm:text-base">
+            <p className="ui-dialog-support mt-2 text-sm sm:text-base">
               {pinyinSyllables[index] ?? ""}
             </p>
           </div>
@@ -58,7 +58,7 @@ function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
 
 function LearningSummary({meaning, examples}: {meaning: string; examples: string[]}) {
   return (
-    <div className="space-y-4 border-t border-zinc-800 pt-4">
+    <div className="ui-section-divider space-y-4 border-t pt-4">
       <section className="mx-auto max-w-sm space-y-1.5">
         <p className="ui-dialog-label">
           Meaning
@@ -84,18 +84,6 @@ function LearningSummary({meaning, examples}: {meaning: string; examples: string
   );
 }
 
-function CloseDialogButton({onClose}: {onClose: () => void}) {
-  return (
-    <button
-      type="button"
-      onClick={onClose}
-      className="ui-button ui-button-primary w-full sm:w-auto"
-    >
-      Close
-    </button>
-  );
-}
-
 export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDialogProps) {
   if (!isOpen) {
     return null;
@@ -105,7 +93,7 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
     <div
       className={[
         "fixed inset-0 z-50 transition-all duration-200 sm:flex sm:items-center sm:justify-center sm:p-6",
-        isVisible ? "bg-zinc-950/80 backdrop-blur-sm" : "bg-zinc-950/0 backdrop-blur-none",
+        isVisible ? "ui-overlay-open" : "ui-overlay-closed",
       ].join(" ")}
     >
       <div
@@ -134,7 +122,13 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
           </div>
 
           <div className="px-5 pb-8 sm:px-6 sm:pb-6">
-            <CloseDialogButton onClose={onClose}/>
+            <button
+              type="button"
+              onClick={onClose}
+              className="ui-button ui-button-primary w-full sm:w-auto"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>

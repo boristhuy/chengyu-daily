@@ -121,11 +121,11 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
             />
           </div>
 
-          <div className="flex min-h-14 items-center px-5 py-1 sm:px-6">
+          <div className="flex min-h-14 items-center border-t border-black/10 px-5 py-1 sm:px-6">
             <button
               type="button"
               onClick={onClose}
-              className="ui-button ui-button-primary w-full sm:w-auto"
+              className="ui-button w-full bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)] sm:w-auto"
             >
               关闭
             </button>

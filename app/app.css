@@ -7,7 +7,7 @@
   --color-surface: #fbf8f2;
   --color-surface-muted: #f3eee6;
   --color-surface-active: #f8f2e9;
-  --color-text: #1a1a1a;
+  --color-text: #3a352f;
   --color-text-muted: #6f6a63;
   --color-border-subtle: #ddd6cc;
   --color-border-tile: #bdb5aa;
@@ -34,7 +34,7 @@ html, body {
   }
 
   .ui-button {
-    @apply inline-flex min-h-11 items-center justify-center rounded-2xl px-5 text-sm font-medium transition-colors focus-visible:outline-none;
+    @apply inline-flex min-h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors focus-visible:outline-none;
   }
 
   .ui-button:focus-visible {

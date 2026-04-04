@@ -29,19 +29,8 @@ html, body {
   .ui-title-display {
     font-family: "Noto Sans SC", sans-serif;
     font-weight: 900;
-    @apply text-center text-5xl uppercase tracking-[0.04em];
+    @apply text-center text-4xl uppercase tracking-[0.04em] sm:text-[2.625rem];
     color: var(--color-text);
-  }
-
-  .ui-game-board {
-    @apply rounded-[2rem] px-4 py-5 sm:px-5 sm:py-6;
-    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  }
-
-  .ui-control-panel {
-    @apply rounded-[2rem] px-4 py-4 sm:px-5 sm:py-5;
-    background: var(--color-surface);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border-subtle) 78%, transparent);
   }
 
   .ui-button {

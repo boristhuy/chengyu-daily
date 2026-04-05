@@ -47,25 +47,11 @@ function buildShareText(puzzle: Puzzle) {
 }
 
 async function copyToClipboard(text: string) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
+  if (!navigator.clipboard?.writeText) {
+    throw new Error("Clipboard API is unavailable.");
   }
 
-  const textArea = document.createElement("textarea");
-  textArea.value = text;
-  textArea.setAttribute("readonly", "");
-  textArea.style.position = "fixed";
-  textArea.style.opacity = "0";
-  document.body.append(textArea);
-  textArea.select();
-
-  const didCopy = document.execCommand("copy");
-  textArea.remove();
-
-  if (!didCopy) {
-    throw new Error("Clipboard copy failed.");
-  }
+  await navigator.clipboard.writeText(text);
 }
 
 function DialogHeader({isSolved}: {isSolved: boolean}) {

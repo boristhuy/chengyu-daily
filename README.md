@@ -89,6 +89,8 @@ Primary score:
 
 Lower is better.
 
+After a puzzle ends, players can copy a compact spoiler-free share summary from the game-over dialog. The shared text includes the game name, the result as attempts used or `X/4`, and emoji-only feedback rows for each submitted guess.
+
 Possible future extensions:
 - Stars
 - Daily ranking
@@ -151,6 +153,7 @@ This avoids duplicate-character edge cases and keeps feedback logic simple.
 - Keep implementation simple and readable
 - No overengineering
 - No unnecessary dependencies
+- Keep sharing plain-text and spoiler-free
 
 ---
 

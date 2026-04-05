@@ -11,6 +11,7 @@ import type {
 const TARGET_LENGTH = 4;
 const MIN_DISTRACTORS = 4;
 const MAX_DISTRACTORS = 6;
+
 export const MAX_GUESSES = 4;
 
 function splitCharacters(value: string): string[] {

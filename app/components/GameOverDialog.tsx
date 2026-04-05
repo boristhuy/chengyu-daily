@@ -1,4 +1,4 @@
-import {type Puzzle} from "../game";
+import {ChengyuEntry, type Puzzle} from "../game";
 
 type GameOverDialogProps = {
   puzzle: Puzzle;
@@ -14,13 +14,13 @@ function buildPinyinSyllables(pinyin: string) {
 function DialogHeader({isSolved}: {isSolved: boolean}) {
   const resultTitle = isSolved ? "挑战成功" : "挑战结束";
   const resultHeaderClasses = isSolved
-    ? "ui-feedback-correct"
-    : "ui-feedback-failure";
+    ? "text-[var(--color-state-success)] bg-[var(--color-state-success)]"
+    : "text-[var(--color-text)] bg-[var(--color-state-failure)]";
 
   return (
     <div
       className={[
-        "-mx-5 -mt-8 flex min-h-14 items-center justify-center border-b border-black/10 px-5 text-center sm:-mx-6 sm:-mt-6 sm:px-6",
+        "ui-dialog-header",
         resultHeaderClasses,
       ].join(" ")}
     >
@@ -29,6 +29,42 @@ function DialogHeader({isSolved}: {isSolved: boolean}) {
       </h2>
     </div>
   );
+}
+
+function DialogBody({learning}: {learning: ChengyuEntry}) {
+  return (
+    <div className="ui-dialog-body">
+      <AnswerPreview
+        hanzi={learning.hanzi}
+        pinyin={learning.pinyin}
+      />
+      <LearningSummary
+        meaning={learning.meaning}
+        examples={learning.examples}
+      />
+    </div>
+  )
+}
+
+function DialogActions({onClose}: {onClose: () => void}) {
+  return (
+    <div className="ui-dialog-actions">
+      <button
+        type="button"
+        onClick={onClose}
+        className="ui-button ui-text-button"
+      >
+        关闭
+      </button>
+      <button
+        type="button"
+        onClick={onClose}
+        className="ui-button ui-text-button"
+      >
+        分享
+      </button>
+    </div>
+  )
 }
 
 function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
@@ -60,21 +96,21 @@ function LearningSummary({meaning, examples}: {meaning: string; examples: string
   return (
     <div className="ui-section-divider space-y-4 border-t pt-4">
       <section className="mx-auto max-w-sm space-y-1">
-        <p className="ui-dialog-label">
+        <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
           释义
         </p>
-        <p className="ui-dialog-copy">
+        <p className="text-sm leading-5 text-[var(--color-text)]">
           {meaning}
         </p>
       </section>
 
       <section className="mx-auto max-w-sm space-y-2">
-        <p className="ui-dialog-label">
+        <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
           例句
         </p>
         <div className="space-y-2">
           {examples.map((example) => (
-            <p key={example} className="ui-dialog-copy">
+            <p key={example} className="text-sm leading-5 text-[var(--color-text)]">
               {example}
             </p>
           ))}
@@ -92,8 +128,8 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
   return (
     <div
       className={[
-        "fixed inset-0 z-50 transition-all duration-200 sm:flex sm:items-center sm:justify-center sm:p-6",
-        isVisible ? "ui-overlay-open" : "ui-overlay-closed",
+        "ui-dialog-overlay",
+        isVisible ? "ui-dialog-overlay-open" : "ui-dialog-overlay-closed",
       ].join(" ")}
     >
       <div
@@ -102,34 +138,15 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
         aria-labelledby="game-over-title"
         className={[
           "ui-dialog-panel",
-          "transition-all duration-200",
           isVisible
             ? "translate-y-0 opacity-100 sm:scale-100"
             : "translate-y-2 opacity-0 sm:translate-y-3 sm:scale-[0.98]",
         ].join(" ")}
       >
         <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:max-w-none">
-          <div className="space-y-5 px-5 py-8 sm:px-6 sm:py-6">
-            <DialogHeader isSolved={puzzle.isSolved}/>
-            <AnswerPreview
-              hanzi={puzzle.learning.hanzi}
-              pinyin={puzzle.learning.pinyin}
-            />
-            <LearningSummary
-              meaning={puzzle.learning.meaning}
-              examples={puzzle.learning.examples}
-            />
-          </div>
-
-          <div className="flex min-h-14 items-center border-t border-black/10 px-5 py-1 sm:px-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="ui-button w-full bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)] sm:w-auto"
-            >
-              关闭
-            </button>
-          </div>
+          <DialogHeader isSolved={puzzle.isSolved}/>
+          <DialogBody learning={puzzle.learning} />
+          <DialogActions onClose={onClose}/>
         </div>
       </div>
     </div>

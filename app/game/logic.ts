@@ -37,7 +37,9 @@ function canBuildGuessFromPool(guessCharacters: string[], pool: string[]): boole
 
 function buildCharacterPool(target: ChengyuEntry): string[] {
   const targetCharacters = splitCharacters(target.hanzi);
-  return shuffle([...targetCharacters, ...target.distractors]);
+  const distractorCharacters = splitCharacters(target.distractors);
+
+  return shuffle([...targetCharacters, ...distractorCharacters]);
 }
 
 function createGuessResult(

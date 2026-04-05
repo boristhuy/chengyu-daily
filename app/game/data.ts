@@ -23,7 +23,7 @@ function validateDataset(dataset: ChengyuEntry[]): void {
 
   for (const entry of dataset) {
     const characters = splitCharacters(entry.hanzi);
-    const distractorCharacters = entry.distractors;
+    const distractorCharacters = splitCharacters(entry.distractors);
     const poolSize = characters.length + distractorCharacters.length;
 
     if (characters.length !== 4) {
@@ -44,6 +44,10 @@ function validateDataset(dataset: ChengyuEntry[]): void {
 
     if (entry.examples.length === 0 || entry.examples.some((example) => !example.trim())) {
       throw new Error(`Invalid chengyu "${entry.hanzi}": at least one example is required.`);
+    }
+
+    if (!entry.distractors.trim()) {
+      throw new Error(`Invalid chengyu "${entry.hanzi}": distractors are required.`);
     }
 
     if (distractorCharacters.length < 4 || distractorCharacters.length > 6) {

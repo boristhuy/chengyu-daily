@@ -5,7 +5,7 @@ export interface ChengyuEntry {
   pinyin: string;
   meaning: string;
   examples: string[];
-  distractors: string[];
+  distractors: string;
 }
 
 export type GuessFeedbackStatus = "correct" | "present" | "absent";

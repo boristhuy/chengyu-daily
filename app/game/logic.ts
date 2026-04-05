@@ -11,8 +11,6 @@ import type {
 export const MAX_GUESSES = 4;
 
 export const GUESS_LENGTH = 4;
-const MIN_DISTRACTORS = 4;
-const MAX_DISTRACTORS = 6;
 
 function splitCharacters(value: string): string[] {
   return Array.from(value);
@@ -39,22 +37,9 @@ function canBuildGuessFromPool(guessCharacters: string[], pool: string[]): boole
 
 function buildCharacterPool(target: ChengyuEntry): string[] {
   const targetCharacters = splitCharacters(target.hanzi);
-  const distractorCandidates = Array.from(
-    new Set(
-      CHENGYU_DATASET.flatMap((chengyu) => splitCharacters(chengyu.hanzi)).filter(
-        (character) => !targetCharacters.includes(character),
-      ),
-    ),
-  );
+  const distractorCharacters = splitCharacters(target.distractors);
 
-  const distractorCount = Math.min(
-    distractorCandidates.length,
-    randomInt(MIN_DISTRACTORS, MAX_DISTRACTORS),
-  );
-
-  const distractors = shuffle(distractorCandidates).slice(0, distractorCount);
-
-  return shuffle([...targetCharacters, ...distractors]);
+  return shuffle([...targetCharacters, ...distractorCharacters]);
 }
 
 function createGuessResult(
@@ -71,7 +56,7 @@ function createGuessResult(
 }
 
 export function createPuzzle(): Puzzle {
-  const learning = CHENGYU_DATASET[randomInt(0, CHENGYU_DATASET.length - 1)];
+  const learning = CHENGYU_DATASET[CHENGYU_DATASET.length - 1];
 
   return {
     target: learning.hanzi,

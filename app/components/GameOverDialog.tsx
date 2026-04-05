@@ -12,7 +12,7 @@ function buildPinyinSyllables(pinyin: string) {
 }
 
 function DialogHeader({isSolved}: {isSolved: boolean}) {
-  const resultTitle = isSolved ? "挑战成功" : "挑战结束";
+  const resultTitle = isSolved ? "答对了！" : "差一点！";
   const resultHeaderClasses = isSolved
     ? "text-[var(--color-state-success)] bg-[var(--color-state-success)]"
     : "text-[var(--color-text)] bg-[var(--color-state-failure)]";

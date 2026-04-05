@@ -1,6 +1,4 @@
-import {type GuessFeedbackStatus, type Puzzle} from "../game";
-
-const GUESS_LENGTH = 4;
+import {type GuessFeedbackStatus, type Puzzle, GUESS_LENGTH} from "../game";
 
 const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
   correct: "ui-feedback-correct",

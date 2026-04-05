@@ -1,6 +1,4 @@
-import {type GuessFeedbackStatus, GuessResult, MAX_GUESSES} from "../game";
-
-const GUESS_LENGTH = 4;
+import {GUESS_LENGTH, type GuessFeedbackStatus, GuessResult, MAX_GUESSES} from "../game";
 
 type GuessGridProps = {
   history: GuessResult[];
@@ -16,7 +14,7 @@ function buildGuessSlots(currentGuess: string[]) {
 const feedbackStatusClasses: Record<GuessFeedbackStatus, string> = {
   correct: "ui-feedback-correct",
   present: "ui-feedback-present",
-  absent: "ui-feedback-neutral",
+  absent: "ui-feedback-absent text-[var(--color-text-muted)]",
 };
 
 type FeedbackTileProps = {
@@ -46,7 +44,7 @@ type EditableTileProps = {
 
 function CurrentGuessTile({index, character, isGameOver, onRemoveCharacter}: EditableTileProps) {
   const tileStateClass = character ? "ui-tile-guess-filled" : "ui-tile-guess-empty";
-  const animationClass = character ? "animate-guess-slot-pop" : "";
+  const animationClass = character ? "ui-animate-guess-slot" : "";
 
   return (
     <button

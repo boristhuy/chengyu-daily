@@ -135,11 +135,6 @@ html, body {
     color: var(--color-text);
   }
 
-  .ui-feedback-neutral {
-    background: var(--color-state-neutral);
-    color: var(--color-text-muted);
-  }
-
   .ui-feedback-absent {
     background: var(--color-state-neutral);
     color: transparent;
@@ -198,6 +193,6 @@ html, body {
   }
 }
 
-.animate-guess-slot-pop {
+.ui-animate-guess-slot {
   animation: guess-slot-settle 180ms ease-out;
 }

@@ -1,7 +1,5 @@
 import {useEffect, useState} from "react";
-import {createPuzzle, Puzzle, submitGuess} from "../game";
-
-const GUESS_LENGTH = 4;
+import {createPuzzle, Puzzle, submitGuess, GUESS_LENGTH} from "../game";
 
 export function usePuzzleGame() {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);

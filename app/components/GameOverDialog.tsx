@@ -1,4 +1,5 @@
-import {ChengyuEntry, type Puzzle} from "../game";
+import {useEffect, useState} from "react";
+import {ChengyuEntry, type GuessFeedbackStatus, type Puzzle} from "../game";
 
 type GameOverDialogProps = {
   puzzle: Puzzle;
@@ -7,8 +8,50 @@ type GameOverDialogProps = {
   onClose: () => void;
 };
 
+type DialogActionsProps = {
+  onClose: () => void;
+  onShare: () => void;
+  shareLabel: string;
+};
+
+const SHARE_LABEL_DEFAULT = "分享";
+const SHARE_LABEL_SUCCESS = "已复制";
+const SHARE_RESET_DELAY_MS = 1800;
+
 function buildPinyinSyllables(pinyin: string) {
   return pinyin.split(/\s+/).filter(Boolean);
+}
+
+function getShareStatusEmoji(status: GuessFeedbackStatus) {
+  switch (status) {
+    case "correct":
+      return "🟩";
+    case "present":
+      return "🟨";
+    case "absent":
+      return "⬜";
+  }
+}
+
+function buildShareText(puzzle: Puzzle) {
+  const resultSummary = puzzle.isSolved ? `${puzzle.attemptCount}/4` : "X/4";
+  const guessRows = puzzle.guesses.map((guess) =>
+    guess.feedback.map((slot) => getShareStatusEmoji(slot.status)).join(""),
+  );
+
+  return [
+    `成语乐 ${resultSummary}`,
+    "",
+    ...guessRows,
+  ].join("\n");
+}
+
+async function copyToClipboard(text: string) {
+  if (!navigator.clipboard?.writeText) {
+    throw new Error("Clipboard API is unavailable.");
+  }
+
+  await navigator.clipboard.writeText(text);
 }
 
 function DialogHeader({isSolved}: {isSolved: boolean}) {
@@ -43,10 +86,10 @@ function DialogBody({learning}: {learning: ChengyuEntry}) {
         examples={learning.examples}
       />
     </div>
-  )
+  );
 }
 
-function DialogActions({onClose}: {onClose: () => void}) {
+function DialogActions({onClose, onShare, shareLabel}: DialogActionsProps) {
   return (
     <div className="ui-dialog-actions">
       <button
@@ -58,13 +101,13 @@ function DialogActions({onClose}: {onClose: () => void}) {
       </button>
       <button
         type="button"
-        onClick={onClose}
+        onClick={onShare}
         className="ui-button ui-text-button"
       >
-        分享
+        {shareLabel}
       </button>
     </div>
-  )
+  );
 }
 
 function AnswerPreview({hanzi, pinyin}: {hanzi: string; pinyin: string}) {
@@ -121,6 +164,29 @@ function LearningSummary({meaning, examples}: {meaning: string; examples: string
 }
 
 export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDialogProps) {
+  const [shareLabel, setShareLabel] = useState(SHARE_LABEL_DEFAULT);
+
+  useEffect(() => {
+    if (shareLabel === SHARE_LABEL_DEFAULT) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShareLabel(SHARE_LABEL_DEFAULT);
+    }, SHARE_RESET_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [shareLabel]);
+
+  async function handleShare() {
+    try {
+      await copyToClipboard(buildShareText(puzzle));
+      setShareLabel(SHARE_LABEL_SUCCESS);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   if (!isOpen) {
     return null;
   }
@@ -146,7 +212,11 @@ export function GameOverDialog({puzzle, isOpen, isVisible, onClose}: GameOverDia
         <div className="mx-auto flex h-full max-w-md flex-col justify-between sm:max-w-none">
           <DialogHeader isSolved={puzzle.isSolved}/>
           <DialogBody learning={puzzle.learning} />
-          <DialogActions onClose={onClose}/>
+          <DialogActions
+            onClose={onClose}
+            onShare={handleShare}
+            shareLabel={shareLabel}
+          />
         </div>
       </div>
     </div>

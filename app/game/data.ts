@@ -1,55 +1,7 @@
+import rawDataset from "./dataset.json";
 import type { ChengyuEntry } from "./types";
 
-export const CHENGYU_DATASET: ChengyuEntry[] = [
-  {
-    hanzi: "画蛇添足",
-    pinyin: "huà shé tiān zú",
-    meaning: "To ruin something by adding unnecessary details.",
-    examples: ["这个方案已经很清楚了，别再画蛇添足地加功能。"],
-  },
-  {
-    hanzi: "盲人摸象",
-    pinyin: "máng rén mō xiàng",
-    meaning: "To mistake a part for the whole because of limited perspective.",
-    examples: ["只看一组数据就下结论，难免像盲人摸象。"],
-  },
-  {
-    hanzi: "对牛弹琴",
-    pinyin: "duì niú tán qín",
-    meaning: "To address the wrong audience and be misunderstood.",
-    examples: ["跟完全不感兴趣的人讲这些术语，简直是对牛弹琴。"],
-  },
-  {
-    hanzi: "守株待兔",
-    pinyin: "shǒu zhū dài tù",
-    meaning: "To wait passively for luck instead of taking action.",
-    examples: ["市场不会自己来，守株待兔是拿不到客户的。"],
-  },
-  {
-    hanzi: "刻舟求剑",
-    pinyin: "kè zhōu qiú jiàn",
-    meaning: "To rely on outdated methods without adapting to change.",
-    examples: ["环境早就变了，还按老办法做事，无异于刻舟求剑。"],
-  },
-  {
-    hanzi: "亡羊补牢",
-    pinyin: "wáng yáng bǔ láo",
-    meaning: "To take corrective action after a problem appears; better late than never.",
-    examples: ["出了问题后马上补上流程，也算亡羊补牢。"],
-  },
-  {
-    hanzi: "班门弄斧",
-    pinyin: "bān mén nòng fǔ",
-    meaning: "To show off a skill in front of an expert.",
-    examples: ["在老师傅面前讲这点经验，有点班门弄斧。"],
-  },
-  {
-    hanzi: "滥竽充数",
-    pinyin: "làn yú chōng shù",
-    meaning: "To fake competence and blend in without real ability.",
-    examples: ["不会做还装懂，只是在团队里滥竽充数。"],
-  },
-];
+export const CHENGYU_DATASET: ChengyuEntry[] = rawDataset;
 
 function splitCharacters(value: string): string[] {
   return Array.from(value);
@@ -60,9 +12,19 @@ function hasDistinctCharacters(value: string): boolean {
   return new Set(characters).size === characters.length;
 }
 
+function hasDistinctItems(values: string[]): boolean {
+  return new Set(values).size === values.length;
+}
+
 function validateDataset(dataset: ChengyuEntry[]): void {
+  if (dataset.length === 0) {
+    throw new Error("Dataset must contain at least one entry.");
+  }
+
   for (const entry of dataset) {
     const characters = splitCharacters(entry.hanzi);
+    const distractorCharacters = entry.distractors;
+    const poolSize = characters.length + distractorCharacters.length;
 
     if (characters.length !== 4) {
       throw new Error(`Invalid chengyu "${entry.hanzi}": expected exactly 4 characters.`);
@@ -82,6 +44,26 @@ function validateDataset(dataset: ChengyuEntry[]): void {
 
     if (entry.examples.length === 0 || entry.examples.some((example) => !example.trim())) {
       throw new Error(`Invalid chengyu "${entry.hanzi}": at least one example is required.`);
+    }
+
+    if (distractorCharacters.length < 4 || distractorCharacters.length > 6) {
+      throw new Error(`Invalid chengyu "${entry.hanzi}": expected 4 to 6 distractors.`);
+    }
+
+    if (distractorCharacters.some((character) => character.trim().length !== 1)) {
+      throw new Error(`Invalid chengyu "${entry.hanzi}": distractors must be single characters.`);
+    }
+
+    if (!hasDistinctItems(distractorCharacters)) {
+      throw new Error(`Invalid chengyu "${entry.hanzi}": distractors must be distinct.`);
+    }
+
+    if (distractorCharacters.some((character) => characters.includes(character))) {
+      throw new Error(`Invalid chengyu "${entry.hanzi}": distractors must not be part of the answer.`);
+    }
+
+    if (poolSize < 8 || poolSize > 10) {
+      throw new Error(`Invalid chengyu "${entry.hanzi}": pool must contain 8 to 10 characters.`);
     }
   }
 }

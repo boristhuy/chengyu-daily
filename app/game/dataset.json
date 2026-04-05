@@ -1,0 +1,11 @@
+[
+  {
+    "hanzi": "画蛇添足",
+    "pinyin": "hua she tian zu",
+    "meaning": "To ruin something by adding unnecessary details.",
+    "examples": [
+      "这个方案已经很清楚了，别再画蛇添足地加功能。"
+    ],
+    "distractors": ["盲", "牛", "琴", "兔"]
+  }
+]

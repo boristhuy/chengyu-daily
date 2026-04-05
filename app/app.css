@@ -2,32 +2,197 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --color-page: #f7f4ee;
+  --color-surface: #fbf8f2;
+  --color-surface-muted: #f3eee6;
+  --color-surface-active: #f8f2e9;
+  --color-text: #3a352f;
+  --color-text-muted: #6f6a63;
+  --color-border-subtle: #ddd6cc;
+  --color-border-tile: #bdb5aa;
+  --color-state-success: #6f8f78;
+  --color-state-partial: #d8ccb8;
+  --color-state-neutral: #e0ded9;
+  --color-state-failure: #d8ccb8;
+  --color-focus-ring: #8fae98;
+  --color-overlay: rgba(26, 26, 26, 0.16);
 }
 
 html, body {
   min-height: 100%;
+  background: var(--color-page);
+  color: var(--color-text);
 }
 
-.title-display {
-  font-family: "Noto Sans SC", sans-serif;
-  font-weight: 900;
-}
-
-@keyframes guess-slot-pop {
-  0% {
-    transform: scale(0.92);
+@layer components {
+  .ui-title-display {
+    font-family: "Noto Sans SC", sans-serif;
+    font-weight: 900;
+    @apply text-center text-4xl uppercase tracking-[0.04em];
+    color: var(--color-text);
   }
 
-  60% {
-    transform: scale(1.08);
+  .ui-button {
+    @apply inline-flex min-h-10 items-center justify-center rounded-full px-6 text-sm font-medium transition-colors focus-visible:outline-none;
+  }
+
+  .ui-button:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .ui-button-primary {
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+
+  .ui-button-primary:hover {
+    background: color-mix(in srgb, var(--color-text) 88%, white);
+  }
+
+  .ui-button-primary:active {
+    background: color-mix(in srgb, var(--color-text) 78%, white);
+  }
+
+  .ui-button-secondary {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+  }
+
+  .ui-button-secondary:hover {
+    background: var(--color-surface-active);
+  }
+
+  .ui-text-button {
+    @apply bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)] w-auto;
+  }
+
+  .ui-icon-button {
+    @apply flex h-[2.5rem] w-[2.5rem] items-center justify-center rounded-xl text-lg transition-colors;
+  }
+
+  .ui-icon-button-enabled {
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+
+  .ui-icon-button-enabled:hover {
+    background: color-mix(in srgb, var(--color-text) 88%, white);
+  }
+
+  .ui-icon-button-disabled {
+    background: var(--color-state-neutral);
+    color: var(--color-text-muted);
+  }
+
+  .ui-tile {
+    @apply flex items-center justify-center rounded-xl font-medium;
+  }
+
+  .ui-tile-pool {
+    @apply h-[2.5rem] w-[2.5rem] text-lg transition-colors transition-transform duration-100 active:scale-95;
+  }
+
+  .ui-tile-guess {
+    @apply h-[3rem] w-[3rem] text-2xl;
+  }
+
+  .ui-tile-guess-filled {
+    background: var(--color-surface-active);
+    color: var(--color-text);
+    box-shadow: inset 0 0 0 1px var(--color-border-tile);
+  }
+
+  .ui-tile-guess-empty {
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    box-shadow: inset 0 0 0 1px var(--color-border-tile);
+  }
+
+  .ui-tile-placeholder {
+    color: transparent;
+    border: 1px dashed color-mix(in srgb, var(--color-border-tile) 82%, var(--color-page));
+  }
+
+  .ui-tile-pool-default {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    box-shadow: inset 0 0 0 1px var(--color-border-tile);
+  }
+
+  .ui-tile-pool-default:hover {
+    background: var(--color-surface-active);
+  }
+
+  .ui-feedback-correct {
+    background: var(--color-state-success);
+    color: var(--color-surface);
+  }
+
+  .ui-feedback-present {
+    background: var(--color-state-partial);
+    color: var(--color-text);
+  }
+
+  .ui-feedback-absent {
+    background: var(--color-state-neutral);
+    color: transparent;
+  }
+
+  .ui-feedback-failure {
+    background: var(--color-state-failure);
+    color: var(--color-text);
+  }
+
+  .ui-dialog-panel {
+    @apply w-full min-h-screen sm:min-h-0 sm:max-w-sm sm:overflow-hidden sm:rounded-3xl transition-all duration-200;
+    background: var(--color-surface);
+  }
+
+  .ui-dialog-header {
+    @apply flex min-h-15 items-center justify-center border-b border-black/10 px-5 text-center sm:px-6;
+  }
+
+  .ui-dialog-body {
+    @apply space-y-5 px-5 py-8 sm:px-6 sm:py-6;
+  }
+
+  .ui-dialog-actions {
+    @apply flex min-h-15 items-center justify-end border-t border-black/10 px-5 py-1 sm:px-6;
+  }
+
+  .ui-section-divider {
+    border-color: var(--color-border-subtle);
+  }
+
+  .ui-dialog-overlay {
+    @apply fixed inset-0 z-50 transition-all duration-200 sm:flex sm:items-center sm:justify-center sm:p-6;
+  }
+
+  .ui-dialog-overlay-open {
+    background: var(--color-overlay);
+    @apply backdrop-blur-sm;
+  }
+
+  .ui-dialog-overlay-closed {
+    background: transparent;
+    @apply backdrop-blur-none;
+  }
+}
+
+@keyframes guess-slot-settle {
+  0% {
+    opacity: 0;
+    transform: scale(0.97);
   }
 
   100% {
+    opacity: 1;
     transform: scale(1);
   }
 }
 
-.animate-guess-slot-pop {
-  animation: guess-slot-pop 160ms ease-out;
+.ui-animate-guess-slot {
+  animation: guess-slot-settle 180ms ease-out;
 }

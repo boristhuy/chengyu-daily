@@ -8,10 +8,11 @@ import type {
   SubmitGuessResult,
 } from "./types";
 
-const TARGET_LENGTH = 4;
+export const MAX_GUESSES = 4;
+
+export const GUESS_LENGTH = 4;
 const MIN_DISTRACTORS = 4;
 const MAX_DISTRACTORS = 6;
-export const MAX_GUESSES = 4;
 
 function splitCharacters(value: string): string[] {
   return Array.from(value);
@@ -126,7 +127,7 @@ export function submitGuess(puzzle: Puzzle, guess: string): SubmitGuessResult {
 
   const guessCharacters = splitCharacters(guess);
 
-  if (guessCharacters.length !== TARGET_LENGTH) {
+  if (guessCharacters.length !== GUESS_LENGTH) {
     return {
       ok: false,
       error: "Guess must contain exactly 4 characters.",
